@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, '../views')));
 
 // Rota principal
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/index.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Arquivos estáticos
