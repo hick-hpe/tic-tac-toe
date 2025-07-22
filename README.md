@@ -37,7 +37,7 @@ Este projeto é um jogo da velha, com versão multiplayer, desenvolvido com Node
 
 1. Clone o repositório:
    ```
-   git clone https://github.com/hick-hpe
+   git clone https://github.com/hick-hpe/tic-tac-toe
    
 Este projeto é um jogo da velha, com versão multiplayer, desenvolvido com Node.js que configura um servidor Express com comunicação em tempo real usando Socket.io.
 
