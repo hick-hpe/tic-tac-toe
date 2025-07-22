@@ -92,8 +92,10 @@ Para iniciar o servidor, execute o seguinte comando:
 npm start
 ```
 
-O servidor estará rodando em `http://localhost:3000/`.
+O servidor estará rodando em [http://localhost:3000/](http://localhost:3000/).
 
 ## Nota(rodando localmente)
 
-Para que outros dispositivos se conectem, devem acessar pelo ip da máquina host. <br/> Por exemplo, se o ip da máquina host é `192.168.3.27`, o link de acesso ao servidor será `http://192.168.3.27:3000/`.
+Para que outros dispositivos se conectem, devem acessar pelo ip da máquina host. <br/> Por exemplo, se o ip da máquina host é `192.168.3.27`, o link de acesso ao servidor será [http://192.168.3.27:3000/](http://192.168.3.27:3000/).
+
+

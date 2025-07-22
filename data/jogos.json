@@ -1,1 +1,31 @@
-{}
+{
+    "userroom": {
+        "tabuleiro": [
+            [
+                "*",
+                "*",
+                "*"
+            ],
+            [
+                "*",
+                "*",
+                "*"
+            ],
+            [
+                "*",
+                "*",
+                "*"
+            ]
+        ],
+        "jogadores": [
+            "hick",
+            "pedrin"
+        ],
+        "vez": "hick",
+        "simbolos": {
+            "hick": "X",
+            "pedrin": "O"
+        },
+        "reiniciar": []
+    }
+}
