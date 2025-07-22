@@ -1,0 +1,32 @@
+body {
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    background-color: #ececec;
+}
+
+.container {
+    width: clamp(300px, 450px, 500px);
+}
+
+.tabuleiro {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    margin: 20px auto;
+    width: max-content;
+    border: 2px solid #333;
+}
+
+.casa {
+    background-color: #f0f0f0;
+    border: 2px solid #333;
+    font-size: 4rem;
+    text-align: center;
+    line-height: 100px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
