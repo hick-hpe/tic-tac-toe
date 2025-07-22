@@ -23,7 +23,6 @@ app.get('/', (req, res) => {
 
 // Arquivos estáticos
 app.use(express.static(path.join(__dirname, '../public')));
-app.use(express.static(path.join(__dirname, '../views')));
 
 // Setup Socket.io
 setupSocket(io);
