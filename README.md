@@ -88,18 +88,6 @@ Este projeto é um jogo da velha, com versão multiplayer, desenvolvido com Node
 ## Uso
 
 Para iniciar o servidor, execute o seguinte comando:
-   ```
-   npm start
-   ```
-
-Instale as dependências:
-   ```
-   npm install
-   ```
-
-## Uso
-
-Para iniciar o servidor, execute o seguinte comando:
 ```
 npm start
 ```
