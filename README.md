@@ -88,17 +88,11 @@ Este projeto é um jogo da velha, com versão multiplayer, desenvolvido com Node
 ## Uso
 
 Para iniciar o servidor, execute o seguinte comando:
-```
-npm start
-```
-
-O servidor estará rodando em `http://localhost:3000`.
-
-/tic-tac-toe
-   cd tic-tac-toe
+   ```
+   npm start
    ```
 
-2. Instale as dependências:
+Instale as dependências:
    ```
    npm install
    ```
@@ -111,4 +105,3 @@ npm start
 ```
 
 O servidor estará rodando em `http://localhost:3000`.
-
