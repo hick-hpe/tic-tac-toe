@@ -137,7 +137,7 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
                 socket.emit('jogada', {
                     sala: salaJogo,
                     jogador: jogadorLocal,
-                    casaJogada: casa.id
+                    casaJogada: Number(casa.id[casa.id.length - 1])
                 });
             } else {
                 alert('Não é sua vez!');
