@@ -70,6 +70,49 @@ function setupSocket(io) {
             }
         });
 
+        // ========================================== jogadas ==========================================
+        socket.on('jogada', ({ sala, jogador, casaId }) => {
+            console.log(`Jogada recebida de ${jogador} na sala "${sala}" na casa ${casaId}`);
+
+            // Verifica se a sala existe e se o jogo está iniciado
+            if (!salas[sala] || !salas[sala].jogo) {
+                console.log(`Sala "${sala}" não encontrada ou jogo não iniciado`);
+                socket.emit('erro', { mensagem: 'Sala não encontrada ou jogo não iniciado.' });
+                return;
+            }
+
+            const jogo = salas[sala].jogo;
+            const jogadaValida = jogo.fazerJogada(jogador, casaId);
+            jogo.exibirTabuleiro();
+
+            if (!jogadaValida) {
+                console.log(`Jogada inválida de ${jogador} na sala "${sala}"`);
+                socket.emit('erro', { mensagem: 'Jogada inválida.' });
+                return;
+            }
+
+            console.log(`Jogada válida de ${jogador} na sala "${sala}"`);
+            io.to(sala).emit('atualizar-tabuleiro', {
+                casaId,
+                vez: jogo.vez,
+                simbolo: jogo.simbolos[jogador]
+            });
+
+
+            // Verifica se o jogo terminou
+            const resultado = jogo.checarVitoriaOuEmpate();
+            if (resultado === null) {
+                console.log(`🔄 Jogo em andamento na sala ${sala}`);
+            } else  if (resultado === -1) {
+                io.to(sala).emit('fim-de-jogo', null);
+                console.log(`🤝 Empate na sala ${sala}`);
+            } else {
+                const vencedor = jogo.getJogadorPorSimbolo(resultado.simbolo);
+                io.to(sala).emit('fim-de-jogo', vencedor);
+                console.log(`🏆 Vencedor na sala ${sala}: ${vencedor}`);
+            }
+        });
+
         // ====================================================== jogador desconectado ======================================================
         socket.on('disconnect', () => {
             console.log(`🔌 Socket ${socket.id} desconectado`);

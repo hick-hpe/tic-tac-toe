@@ -137,7 +137,7 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
                 socket.emit('jogada', {
                     sala: salaJogo,
                     jogador: jogadorLocal,
-                    casaJogada: Number(casa.id[casa.id.length - 1])
+                    casaId: Number(casa.id[casa.id.length - 1])
                 });
             } else {
                 alert('Não é sua vez!');
@@ -178,6 +178,43 @@ socket.on('jogador-desconectado', ({ nome }) => {
 });
 
 
+socket.on('atualizar-tabuleiro', ({ casaId, vez, simbolo }) => {
+    const casa = document.getElementById(`casa-${casaId}`);
+    casa.textContent = simbolo;
+    casa.className = `casa ${simbolo === 'X' ? 'text-dark' : 'text-danger'}`;
+    vezJogador.textContent = vez;
+});
+
+
+function exibirResultado(vencedor = null, meuNome = '') {
+    const modal = new bootstrap.Modal(document.getElementById('modal'));
+    const modalTitle = document.getElementById('modalLabel');
+    const modalBody = document.getElementById('modalBody');
+
+    if (vencedor === null) {
+        modalTitle.textContent = 'Empate!';
+        modalBody.innerHTML = '<p>Ninguém venceu a partida.</p>';
+    } else if (vencedor === meuNome) {
+        modalTitle.textContent = 'Vitória!';
+        modalBody.innerHTML = '<p>Parabéns, você venceu!</p>';
+    } else {
+        modalTitle.textContent = 'Derrota';
+        modalBody.innerHTML = `<p>${vencedor} venceu a partida.</p>`;
+    }
+
+    modal.show();
+}
+
+socket.on('fim-de-jogo', (jogador) => {
+    if (jogador === null) {
+        exibirResultado(null);
+    } else {
+        exibirResultado(jogador, jogadorLocal);
+    }
+    // Exibir botão de reiniciar (ainda não faz nada kkk)
+    btnReiniciar.style.display = '';
+    btnReiniciar.disabled = false;
+});
 
 
 
