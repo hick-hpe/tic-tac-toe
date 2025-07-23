@@ -10,17 +10,17 @@ class TicTacToe {
         this.reiniciar = [];
     }
 
-    static reconstruir(dados) {
-        const jogo = new TicTacToe(dados.jogadores[0], dados.jogadores[1]);
+    // static reconstruir(dados) {
+    //     const jogo = new TicTacToe(dados.jogadores[0], dados.jogadores[1]);
 
-        // Restaurar os dados salvos
-        jogo.tabuleiro = Array.isArray(dados.tabuleiro) ? dados.tabuleiro : jogo.tabuleiro;
-        jogo.vez = dados.vez || jogo.vez;
-        jogo.simbolos = dados.simbolos || jogo.simbolos;
-        jogo.reiniciar = Array.isArray(dados.reiniciar) ? dados.reiniciar : [];
+    //     // Restaurar os dados salvos
+    //     jogo.tabuleiro = Array.isArray(dados.tabuleiro) ? dados.tabuleiro : jogo.tabuleiro;
+    //     jogo.vez = dados.vez || jogo.vez;
+    //     jogo.simbolos = dados.simbolos || jogo.simbolos;
+    //     jogo.reiniciar = Array.isArray(dados.reiniciar) ? dados.reiniciar : [];
 
-        return jogo;
-    }
+    //     return jogo;
+    // }   
 
     exibirTabuleiro() {
         console.log('==== TABULEIRO ====');

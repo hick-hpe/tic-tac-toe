@@ -1,123 +1,100 @@
+const salas = {};
+const timeoutRemoverSala = {};
 const TicTacToe = require('./TicTacToe');
-const {
-    getSalas,
-    setSala,
-    removerSala,
-    criarOuAtualizarJogo,
-    getJogo
-} = require('./GameManager');
+const TEMPO_ESPERA_INICIAR_PARTIDA = 5000;
+const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20000;
 
 function setupSocket(io) {
     io.on('connection', (socket) => {
-        // === ENTRAR NA SALA ===
-        socket.on('entrar-sala', ({ nome, sala }) => {
-            const salas = getSalas();
+        console.log(`🟢 Socket ${socket.id} conectado`);
 
+        // ========================================================== criar sala ==========================================================
+        socket.on('criar-sala', ({ nome, sala }) => {
+            console.log(`Sala criada por ${nome} na sala "${sala}"`);
+
+            // Verifica se a sala já existe, se não, cria uma nova
             if (!salas[sala]) {
-                salas[sala] = [];
-            } else if (salas[sala].some(j => j.nome === nome)) {
-                socket.emit('jogador-existente');
+                salas[sala] = { jogadores: [] };
+            }
+            
+            console.log('=== salas disponíveis ===');
+            console.log(Object.keys(salas));
+            
+            // Adiciona o jogador à sala
+            if (salas[sala].jogadores.some(j => j.nome === nome)) {
+                // Se já existe um jogador com esse nome na sala, emite erro
+                socket.emit('erro', { mensagem: 'Já existe um jogador com esse nome na sala!' });
                 return;
             }
-
-            salas[sala].push({ id: socket.id, nome });
+            salas[sala].jogadores.push({ id: socket.id, nome });
             socket.join(sala);
-            setSala(sala, salas[sala]);
+            console.log('=== jogadores na sala ===');
+            console.log(salas[sala].jogadores);
 
-            console.log(`🟢 ${nome} entrou na sala ${sala}`);
+            // se tiver 2 jogadores, iniciar partida
+            if (salas[sala].jogadores.length === 2) {
+                console.log(`Iniciando partida na sala "${sala}" com jogadores:`, salas[sala].jogadores.map(j => j.nome));
+                
+                // remover timeout de remoção da sala, pois já tem 2 jogadores
+                clearTimeout(timeoutRemoverSala[sala]);
 
-            if (salas[sala].length === 1) {
-                socket.emit('aguardando');
-            } else if (salas[sala].length === 2) {
-                const jogadores = salas[sala].map(j => j.nome);
-                const jogo = new TicTacToe(jogadores[0], jogadores[1]);
+                // criar instância do jogo TicTacToe
+                const jogador1 = salas[sala].jogadores[0].nome;
+                const jogador2 = salas[sala].jogadores[1].nome;
+                salas[sala].jogo = new TicTacToe(jogador1, jogador2);
 
-                criarOuAtualizarJogo(sala, jogo);
-                io.to(sala).emit('jogadores-pareados', { jogadores });
+                // informar aos jogadores que estão pareados
+                io.to(sala).emit('jogadores-pareados', {
+                    jogadores: salas[sala].jogadores.map(j => j.nome)
+                });
 
+                // aguardar 3 segundos antes de iniciar a partida
                 setTimeout(() => {
-                    io.to(sala).emit('iniciar', { jogadores });
-                }, 3000);
-            }
-        });
+                    const numJogadorComeca = Math.floor(Math.random() * 2);
 
-        // === DESTRUIR SALA ===
-        socket.on('destroy-sala', ({salaJogo, jogador}) => {
-            removerSala(salaJogo);
-            socket.leave(salaJogo);
-            console.log(`🔴 ${jogador} destruiu a sala ${salaJogo}`);
-        });
-
-        // === REALIZAR JOGADA ===
-        socket.on('jogada', ({ sala, jogador, casaJogada }) => {
-            const jogo = getJogo(sala);
-            if (!jogo) return;
-
-            const idCasa = Number(casaJogada.split('-')[1]);
-            jogo.fazerJogada(jogador, idCasa);
-            criarOuAtualizarJogo(sala, jogo);
-
-            io.to(sala).emit('mostrar-jogada', {
-                idCasa,
-                jogada: jogo.simbolos[jogador],
-                vez: jogo.vez
-            });
-
-            const resultado = jogo.checarVitoriaOuEmpate();
-
-            if (resultado === null) {
-                console.log(`🔄 Jogo em andamento na sala ${sala}`);
-            } else  if (resultado === -1) {
-                io.to(sala).emit('fim-de-jogo', null);
-                console.log(`🤝 Empate na sala ${sala}`);
+                    io.to(sala).emit('iniciar', {
+                        jogadores: salas[sala].jogadores.map(j => j.nome),
+                        jogadorComeca: salas[sala].jogadores[numJogadorComeca].nome
+                    });
+                }, TEMPO_ESPERA_INICIAR_PARTIDA);
             } else {
-                const vencedor = jogo.getJogadorPorSimbolo(resultado.simbolo);
-                io.to(sala).emit('fim-de-jogo', vencedor);
-                console.log(`🏆 Vencedor na sala ${sala}: ${vencedor}`);
+                // se não tiver 2 jogadores, aguardar
+                timeoutRemoverSala[sala] = setTimeout(() => {
+                    console.log(`Removendo sala "${sala}" por inatividade`);
+                    delete salas[sala];
+                    clearTimeout(timeoutRemoverSala[sala]);
+                }, TEMPO_ESPERA_AGUARDAR_CONEXAO); // 20 segundos de inatividade
+
+                // informar ao jogador que está aguardando
+                socket.emit('aguardando');
             }
         });
 
-        // === REINICIAR JOGO ===
-        socket.on('reiniciar', ({ nome, sala }) => {
-            const jogo = getJogo(sala);
-            const salas = getSalas();
+        // ====================================================== jogador desconectado ======================================================
+        socket.on('disconnect', () => {
+            console.log(`🔌 Socket ${socket.id} desconectado`);
 
-            if (!jogo || !salas[sala]) {
-                console.warn(`⚠️ Sala ou jogo não encontrados para reinício: ${sala}`);
-                return;
-            }
+            // remover o jogador de todas as salas
+            for (const sala in salas) {
+                const index = salas[sala].jogadores.findIndex(j => j.id === socket.id);
+                if (index !== -1) {
+                    const jogador = salas[sala].jogadores[index].nome;
+                    console.log(`Jogador ${jogador} desconectado da sala "${sala}"`);
 
-            const podeReiniciar = jogo.reiniciarJogo(nome);
+                    // remover o jogador da sala
+                    salas[sala].jogadores.splice(index, 1);
 
-            if (podeReiniciar) {
-                io.to(sala).emit('ambos-jogam-denovo', jogo.vez);
-                criarOuAtualizarJogo(sala, jogo);
-                console.log(`🔁 Jogo reiniciado na sala ${sala}`);
-            } else {
-                const outroJogador = jogo.jogadores.find(j => j !== nome);
-                const socketOutroJogador = salas[sala].find(obj => obj.nome === outroJogador);
-
-                socket.emit('esperar-j2-aceitar', outroJogador);
-
-                if (socketOutroJogador) {
-                    const socketReal = io.sockets.sockets.get(socketOutroJogador.id);
-                    if (socketReal) {
-                        socketReal.emit('confirmar-reinicio', nome);
-                        criarOuAtualizarJogo(sala, jogo);
-                        console.log(`🔄 ${nome} solicitou reinício para ${outroJogador}`);
+                    // se a sala ficar vazia, remover a sala
+                    if (salas[sala].jogadores.length === 0) {
+                        console.log(`Removendo sala "${sala}" por estar vazia`);
+                        delete salas[sala];
+                        clearTimeout(timeoutRemoverSala[sala]);
                     } else {
-                        console.warn(`⚠️ Socket de ${outroJogador} não encontrado`);
+                        // se ainda tiver jogadores, informar aos restantes
+                        io.to(sala).emit('jogador-desconectado', { nome: jogador });
                     }
-                } else {
-                    console.warn(`⚠️ ${outroJogador} não está na sala ${sala}`);
                 }
             }
-        });
-
-        // === DESCONECTAR ===
-        socket.on('disconnect', () => {
-            removerSala(null, socket.id);
-            console.log(`🔌 Socket ${socket.id} desconectado`);
         });
     });
 }
