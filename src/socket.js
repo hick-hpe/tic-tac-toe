@@ -16,10 +16,10 @@ function setupSocket(io) {
             if (!salas[sala]) {
                 salas[sala] = { jogadores: [] };
             }
-            
+
             console.log('=== salas disponíveis ===');
             console.log(Object.keys(salas));
-            
+
             // Adiciona o jogador à sala
             if (salas[sala].jogadores.some(j => j.nome === nome)) {
                 // Se já existe um jogador com esse nome na sala, emite erro
@@ -34,7 +34,7 @@ function setupSocket(io) {
             // se tiver 2 jogadores, iniciar partida
             if (salas[sala].jogadores.length === 2) {
                 console.log(`Iniciando partida na sala "${sala}" com jogadores:`, salas[sala].jogadores.map(j => j.nome));
-                
+
                 // remover timeout de remoção da sala, pois já tem 2 jogadores
                 clearTimeout(timeoutRemoverSala[sala]);
 
@@ -51,10 +51,11 @@ function setupSocket(io) {
                 // aguardar 3 segundos antes de iniciar a partida
                 setTimeout(() => {
                     const numJogadorComeca = Math.floor(Math.random() * 2);
+                    salas[sala].jogo.vez = salas[sala].jogadores[numJogadorComeca].nome;
 
                     io.to(sala).emit('iniciar', {
                         jogadores: salas[sala].jogadores.map(j => j.nome),
-                        jogadorComeca: salas[sala].jogadores[numJogadorComeca].nome
+                        jogadorComeca: salas[sala].jogo.vez
                     });
                 }, TEMPO_ESPERA_INICIAR_PARTIDA);
             } else {
@@ -82,6 +83,11 @@ function setupSocket(io) {
             }
 
             const jogo = salas[sala].jogo;
+            // Verifica se o jogador está na sala
+            console.log('=== jogada atual ===');
+            console.log({ sala, jogador, casaId });
+            console.log('=== vez de quem ===');
+            console.log(jogo.vez);
             const jogadaValida = jogo.fazerJogada(jogador, casaId);
             jogo.exibirTabuleiro();
 
@@ -103,7 +109,7 @@ function setupSocket(io) {
             const resultado = jogo.checarVitoriaOuEmpate();
             if (resultado === null) {
                 console.log(`🔄 Jogo em andamento na sala ${sala}`);
-            } else  if (resultado === -1) {
+            } else if (resultado === -1) {
                 io.to(sala).emit('fim-de-jogo', null);
                 console.log(`🤝 Empate na sala ${sala}`);
             } else {

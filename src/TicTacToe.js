@@ -2,7 +2,7 @@ class TicTacToe {
     constructor(jogador1, jogador2) {
         this.tabuleiro = Array.from({ length: 3 }, () => Array(3).fill('*'));
         this.jogadores = [jogador1, jogador2];
-        this.vez = jogador1;
+        this.vez = null;
         this.simbolos = {
             [jogador1]: 'X',
             [jogador2]: 'O'
@@ -35,7 +35,14 @@ class TicTacToe {
         const linha = Math.floor(posicao / 3);
         const coluna = posicao % 3;
 
-        if (this.tabuleiro[linha][coluna] !== '*' || this.vez !== jogador) return false;
+        if (this.tabuleiro[linha][coluna] !== '*') {
+            console.log('=== Jogada inválida: casa já ocupada ===');
+            return false;
+        }
+        if (this.vez !== jogador) {
+            console.log(`=== Jogada inválida: não é a vez de ${jogador} ===`);
+            return false;
+        }
 
         this.tabuleiro[linha][coluna] = this.simbolos[jogador];
         this.vez = this.jogadores.find(j => j !== jogador);
