@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Setup Socket.io
-// setupSocket(io);
+setupSocket(io);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
