@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("http://localhost:3000");
 
 // // ============================== Variáveis de estado ==============================
 let jogadorLocal = '';
@@ -16,7 +16,7 @@ const jogador1 = document.querySelector('#jogador1');
 const jogador2 = document.querySelector('#jogador2');
 const divAguardando = document.querySelector('#aguardando');
 const btnJogar = document.querySelector('#btnJogar');
-const btnReiniciar = document.querySelector('#btnReiniciar');
+const btnJogarNovamente = document.querySelector('#btnJogarNovamente');
 const btnCancelar = document.querySelector('#btnCancelar');
 const casas = document.querySelectorAll('.casa');
 
@@ -29,7 +29,7 @@ function inicializarInterface() {
     info.style.display = 'none';
     tabuleiro.style.display = 'none';
     divAguardando.style.display = 'none';
-    btnReiniciar.style.display = 'none';
+    btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
 }
 inicializarInterface();
@@ -153,7 +153,7 @@ function exibirMenu() {
     info.style.display = 'none';
     tabuleiro.style.display = 'none';
     divAguardando.style.display = 'none';
-    btnReiniciar.style.display = 'none';
+    btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
     btnJogar.style.display = '';
     btnJogar.className = btnJogar.className.replace('warning', 'success');
@@ -170,7 +170,7 @@ function exibirMenu() {
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome }) => {
     console.log(`🔌 Jogador ${nome} desconectado`);
-    const mensagem = `O(A) jogador(a) ${nome} desconectou.`;
+    const mensagem = `O(A) jogador(a) "${nome}" desconectou.`;
     alert(mensagem);
 
     // direcionar o usuário de volta ao início
@@ -196,10 +196,10 @@ function exibirResultado(vencedor = null, meuNome = '') {
         modalBody.innerHTML = '<p>Ninguém venceu a partida.</p>';
     } else if (vencedor === meuNome) {
         modalTitle.textContent = 'Vitória!';
-        modalBody.innerHTML = '<p>Parabéns, você venceu!</p>';
+        modalBody.innerHTML = `<p>Parabéns <strong>${vencedor}</strong>, você venceu!</p>`;
     } else {
         modalTitle.textContent = 'Derrota';
-        modalBody.innerHTML = `<p>${vencedor} venceu a partida.</p>`;
+        modalBody.innerHTML = `<p><strong>${vencedor}</strong> venceu a partida.</p>`;
     }
 
     modal.show();
@@ -211,131 +211,35 @@ socket.on('fim-de-jogo', (jogador) => {
     } else {
         exibirResultado(jogador, jogadorLocal);
     }
-    // Exibir botão de reiniciar (ainda não faz nada kkk)
-    btnReiniciar.style.display = '';
-    btnReiniciar.disabled = false;
+    // Exibir botão de reiniciar
+    btnJogarNovamente.style.display = '';
+    btnJogarNovamente.disabled = false;
 });
 
+socket.on('aguardando-reiniciar', ({ jogador }) => {
+    btnJogarNovamente.innerHTML = `<strong>${jogador}</strong> quer jogar de novo...`;
+});
 
+btnJogarNovamente.addEventListener('click', () => {
+    const jogador = jogadorLocal === jogador1.textContent ? jogador2.textContent : jogador1.textContent;
+    socket.emit('jogar-novamente', { jogador: jogadorLocal, sala: salaJogo });
+    btnJogarNovamente.disabled = true;
+    btnJogarNovamente.innerHTML = `Esperando <strong>${jogador}</strong> aceitar...`;
+});
 
-// // ============================== Exibir resultado do jogo ==============================
-// function exibirResultado(vencedor = null, meuNome = '') {
-//     const modal = new bootstrap.Modal(document.getElementById('modal'));
-//     const modalTitle = document.getElementById('modalLabel');
-//     const modalBody = document.getElementById('modalBody');
+socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
+    // vez de jogar
+    vezJogador.textContent = jogadorComeca;
 
-//     if (vencedor === null) {
-//         modalTitle.textContent = 'Empate!';
-//         modalBody.innerHTML = '<p>Ninguém venceu a partida.</p>';
-//     } else if (vencedor === meuNome) {
-//         modalTitle.textContent = 'Vitória!';
-//         modalBody.innerHTML = '<p>Parabéns, você venceu!</p>';
-//     } else {
-//         modalTitle.textContent = 'Derrota';
-//         modalBody.innerHTML = `<p>${vencedor} venceu a partida.</p>`;
-//     }
+    // limpar tabuleiro
+    casas.forEach(casa => {
+        casa.textContent = '';
+        casa.className = 'casa';
+    });
 
-//     modal.show();
-// }
+    // botao reiniciar
+    btnJogarNovamente.disabled = false;
+    btnJogarNovamente.style.display = 'none';
+    btnJogarNovamente.textContent = 'Jogar novamente';
+});
 
-// // ============================== Eventos de clique nas casas ==============================
-// casas.forEach(casa => {
-//     casa.addEventListener('click', () => {
-//         if (jogadorLocal === vezJogador.textContent) {
-//             socket.emit('jogada', {
-//                 sala: salaJogo,
-//                 jogador: jogadorLocal,
-//                 casaJogada: casa.id
-//             });
-//         } else {
-//             alert('Não é sua vez!');
-//         }
-//     });
-// });
-
-// // ============================== Botões ==============================
-// btnReiniciar.addEventListener('click', () => {
-//     btnReiniciar.disabled = true;
-//     socket.emit('reiniciar', { nome: jogadorLocal, sala: salaJogo });
-// });
-
-// // ============================== Funções ==============================
-
-// function limparTabuleiro() {
-//     casas.forEach(casa => {
-//         casa.innerHTML = '';
-//     });
-// }
-
-// // ============================== Eventos do socket ==============================
-// socket.on('esperar-j2-aceitar', (outroJogador) => {
-//     btnReiniciar.innerHTML = `Esperando <strong>${outroJogador}</strong> aceitar...`;
-// });
-
-// socket.on('confirmar-reinicio', (outroJogador) => {
-//     btnReiniciar.innerHTML = `<strong>${outroJogador}</strong> quer jogar com você de novo...`;
-// });
-
-// socket.on('ambos-jogam-denovo', (jogador) => {
-//     limparTabuleiro();
-//     vezJogador.textContent = jogador;
-//     btnReiniciar.textContent = 'Reiniciar';
-//     btnReiniciar.style.display = 'none';
-//     btnReiniciar.disabled = false;
-// });
-
-// socket.on('jogadores-pareados', ({ jogadores }) => {
-//     btnCancelar.style.display = 'none';
-//     btnJogar.style.display = '';
-//     const outroJogador = jogadores.find(j => j !== jogadorLocal);
-//     btnJogar.className = btnJogar.className.replace('success', 'warning');
-//     btnJogar.innerHTML = `Conectado com ${outroJogador}...`;
-//     btnJogar.disabled = true;
-
-//     aguardando.style.display = '';
-//     aguardando.innerHTML = `A partida começará em <span id="stempo"></span>s`;
-//     contarTempo(TEMPO_ESPERA_COMECAR_PARTIDA);
-// });
-
-// socket.on('jogador-existente', () => {
-//     alert('Já existe um jogador com esse nome!');
-// });
-
-// socket.on('aguardando', () => {
-//     aguardando.style.display = '';
-//     btnCancelar.style.display = '';
-//     contarTempo(TEMPO_ESPERA_AGUARDAR_CONEXAO, true);
-// });
-
-// socket.on('iniciar', ({ jogadores }) => {
-//     form.style.display = 'none';
-//     aguardando.style.display = 'none';
-//     info.style.display = '';
-//     tabuleiro.style.display = '';
-
-//     vezJogador.textContent = jogadores[0];
-//     jogador1.textContent = jogadores[0];
-//     jogador2.textContent = jogadores[1];
-// });
-
-// socket.on('mostrar-jogada', ({ idCasa, jogada, vez }) => {
-//     const casa = document.getElementById(`casa-${idCasa}`);
-//     const classeCasa = jogada === 'X' ? 'text-dark' : 'text-danger';
-//     casa.textContent = jogada;
-//     casa.className = `casa ${classeCasa}`;
-//     vezJogador.textContent = vez;
-// });
-
-// socket.on('fim-de-jogo', (jogador) => {
-//     console.log('vitoria?', (jogador !== null));
-//     console.log('empate?', (jogador === null));
-//     console.log(`jogador: ${jogador}`);
-
-//     if (jogador === null) {
-//         exibirResultado(null);
-//     } else {
-//         exibirResultado(jogador, jogadorLocal);
-//     }
-//     btnReiniciar.style.display = '';
-//     btnReiniciar.disabled = false;
-// });

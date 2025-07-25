@@ -119,6 +119,40 @@ function setupSocket(io) {
             }
         });
 
+        // ==================================================== jogar novamente ====================================================
+        socket.on('jogar-novamente', ({ jogador, sala }) => {
+            console.log(`Jogador ${jogador} solicitou jogar novamente na sala "${sala}"`);
+
+            // Verifica se a sala existe e se o jogador está nela
+            if (!salas[sala] || !salas[sala].jogadores.some(j => j.nome === jogador)) {
+                console.log(`Sala "${sala}" não encontrada ou jogador não está na sala`);
+                socket.emit('erro', { mensagem: 'Sala não encontrada ou jogador não está na sala.' });
+                return;
+            }
+
+            // Adiciona o jogador à lista de reinício e verifica se ambos aceitaram
+            const podeReiniciar = salas[sala].jogo.reiniciarJogo(jogador);
+            if (podeReiniciar) {
+                console.log(`Ambos os jogadores aceitaram reiniciar o jogo na sala "${sala}"`);
+
+                // Reinicia o jogo
+                const jogador1 = salas[sala].jogadores[0].nome;
+                const jogador2 = salas[sala].jogadores[1].nome;
+                salas[sala].jogo = new TicTacToe(jogador1, jogador2);
+                salas[sala].jogo.vez = Math.random() < 0.5 ? jogador1 : jogador2;
+
+                io.to(sala).emit('ambos-reiniciam', {
+                    jogadorComeca: salas[sala].jogo.vez
+                });
+                console.log(`Partida reiniciada na sala "${sala}" com jogadores:`, salas[sala].jogadores.map(j => j.nome));
+            }
+            else {
+                const outroJogador = salas[sala].jogadores.find(j => j.nome !== jogador);
+                console.log(`Jogador ${outroJogador.nome} ainda não aceitou reiniciar o jogo na sala "${sala}"`);
+                io.to(outroJogador.id).emit('aguardando-reiniciar', { jogador });
+            }
+        });
+
         // ====================================================== jogador desconectado ======================================================
         socket.on('disconnect', () => {
             console.log(`🔌 Socket ${socket.id} desconectado`);
@@ -145,6 +179,12 @@ function setupSocket(io) {
                 }
             }
         });
+
+        // teste
+        socket.on('teste', msg => {
+            console.log('Recebido teste:', msg);
+        });
+
     });
 }
 
