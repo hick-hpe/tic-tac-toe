@@ -3,24 +3,17 @@ class TicTacToe {
         this.tabuleiro = Array.from({ length: 3 }, () => Array(3).fill('*'));
         this.jogadores = [jogador1, jogador2];
         this.vez = null;
-        this.simbolos = {
-            [jogador1]: 'X',
-            [jogador2]: 'O'
-        };
         this.reiniciar = [];
+        this.sortearSimbolos();
     }
 
-    // static reconstruir(dados) {
-    //     const jogo = new TicTacToe(dados.jogadores[0], dados.jogadores[1]);
-
-    //     // Restaurar os dados salvos
-    //     jogo.tabuleiro = Array.isArray(dados.tabuleiro) ? dados.tabuleiro : jogo.tabuleiro;
-    //     jogo.vez = dados.vez || jogo.vez;
-    //     jogo.simbolos = dados.simbolos || jogo.simbolos;
-    //     jogo.reiniciar = Array.isArray(dados.reiniciar) ? dados.reiniciar : [];
-
-    //     return jogo;
-    // }   
+    sortearSimbolos() {
+        const aleatorio = Math.random() < 0.5;
+        this.simbolos = {
+            [this.jogadores[0]]: aleatorio ? 'X' : 'O',
+            [this.jogadores[1]]: aleatorio ? 'O' : 'X'
+        };
+    }
 
     exibirTabuleiro() {
         console.log('==== TABULEIRO ====');

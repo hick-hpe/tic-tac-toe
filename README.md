@@ -28,7 +28,7 @@ Este projeto é um jogo da velha, com versão multiplayer, desenvolvido com Node
 - **Partida Iniciada**
    
    ![Partida Iniciada](assets/img/partida-iniciada.png)
-   A partida sempre iniciará com o criador da sala!
+   O jogador que começará a partida será aleatório!
 
    Após o término da partida, um jogador poderá solicitar ao outro jogador para continuar jogando, clicando no botão `Jogar Novamente`.
 
