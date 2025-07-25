@@ -1,11 +1,11 @@
-const socket = io();
+const socket = io("http://localhost:3000");
 
-// ============================== Variáveis de estado ==============================
+// // ============================== Variáveis de estado ==============================
 let jogadorLocal = '';
 let salaJogo = '';
 let interval;
 
-// ============================== Elementos DOM ==============================
+// // ============================== Elementos DOM ==============================
 const form = document.querySelector('form');
 const inputNome = document.getElementById('nome');
 const inputSala = document.getElementById('sala');
@@ -14,91 +14,25 @@ const tabuleiro = document.querySelector('#tabuleiro');
 const vezJogador = document.querySelector('#vez-jogador');
 const jogador1 = document.querySelector('#jogador1');
 const jogador2 = document.querySelector('#jogador2');
-const aguardando = document.querySelector('#aguardando');
+const divAguardando = document.querySelector('#aguardando');
 const btnJogar = document.querySelector('#btnJogar');
-const btnReiniciar = document.querySelector('#btnReiniciar');
+const btnJogarNovamente = document.querySelector('#btnJogarNovamente');
 const btnCancelar = document.querySelector('#btnCancelar');
 const casas = document.querySelectorAll('.casa');
 
-// ============================== Constantes ==============================
+// // ============================== Constantes ==============================
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20;
-const TEMPO_ESPERA_COMECAR_PARTIDA = 3;
+const TEMPO_ESPERA_COMECAR_PARTIDA = 5;
 
-// ============================== Inicialização ==============================
+// // ============================== Inicialização ==============================
 function inicializarInterface() {
     info.style.display = 'none';
     tabuleiro.style.display = 'none';
-    aguardando.style.display = 'none';
-    btnReiniciar.style.display = 'none';
+    divAguardando.style.display = 'none';
+    btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
 }
 inicializarInterface();
-
-// ============================== Exibir resultado do jogo ==============================
-function exibirResultado(vencedor = null, meuNome = '') {
-    const modal = new bootstrap.Modal(document.getElementById('modal'));
-    const modalTitle = document.getElementById('modalLabel');
-    const modalBody = document.getElementById('modalBody');
-
-    if (vencedor === null) {
-        modalTitle.textContent = 'Empate!';
-        modalBody.innerHTML = '<p>Ninguém venceu a partida.</p>';
-    } else if (vencedor === meuNome) {
-        modalTitle.textContent = 'Vitória!';
-        modalBody.innerHTML = '<p>Parabéns, você venceu!</p>';
-    } else {
-        modalTitle.textContent = 'Derrota';
-        modalBody.innerHTML = `<p>${vencedor} venceu a partida.</p>`;
-    }
-
-    modal.show();
-}
-
-// ============================== Eventos de clique nas casas ==============================
-casas.forEach(casa => {
-    casa.addEventListener('click', () => {
-        if (jogadorLocal === vezJogador.textContent) {
-            socket.emit('jogada', {
-                sala: salaJogo,
-                jogador: jogadorLocal,
-                casaJogada: casa.id
-            });
-        } else {
-            alert('Não é sua vez!');
-        }
-    });
-});
-
-// ============================== Botões ==============================
-btnReiniciar.addEventListener('click', () => {
-    btnReiniciar.disabled = true;
-    socket.emit('reiniciar', { nome: jogadorLocal, sala: salaJogo });
-});
-
-// ============================== Funções ==============================
-function contarTempo(tempo, deleteRoom = false) {
-    const stempo = document.querySelector('#stempo');
-    stempo.textContent = tempo;
-    
-    interval = setInterval(() => {
-        tempo--;
-        stempo.textContent = tempo;
-
-        if (tempo <= 0) {
-            clearInterval(interval);
-            aguardando.style.display = 'none';
-            btnJogar.style.display = 'none';
-            if (deleteRoom)
-                socket.emit('destroy-sala', { salaJogo, jogador: jogadorLocal });
-        }
-    }, 1000);
-}
-
-function limparTabuleiro() {
-    casas.forEach(casa => {
-        casa.innerHTML = '';
-    });
-}
 
 // ============================== Submissão do formulário ==============================
 form.addEventListener('submit', (e) => {
@@ -113,90 +47,198 @@ form.addEventListener('submit', (e) => {
 
     if (botaoClicado.id === 'btnJogar') {
         if (nome && sala) {
-            btnJogar.style.display = 'none';
-            btnCancelar.style.display = '';
-            socket.emit('entrar-sala', { nome, sala });
+            socket.emit('criar-sala', { nome, sala });
         } else {
             alert("Preencha os dois campos.");
         }
     } else if (botaoClicado.id === 'btnCancelar') {
-        clearInterval(interval);
-        socket.emit('destroy-sala', { salaJogo, jogador: jogadorLocal });
-        aguardando.style.display = 'none';
         btnJogar.style.display = '';
         btnCancelar.style.display = 'none';
+        divAguardando.style.display = 'none';
     }
 });
 
-// ============================== Eventos do socket ==============================
-socket.on('esperar-j2-aceitar', (outroJogador) => {
-    btnReiniciar.innerHTML = `Esperando <strong>${outroJogador}</strong> aceitar...`;
+function esperarEstabelecerConexao(tempo) {
+    divAguardando.textContent = `Aguardando por estabelecer conexão... (${tempo}s)`;
+
+    interval = setInterval(() => {
+        tempo--;
+        divAguardando.textContent = `Aguardando por estabelecer conexão... (${tempo}s)`;
+
+        if (tempo <= 0) {
+            clearInterval(interval);
+            divAguardando.style.display = 'none';
+            btnJogar.style.display = '';
+            btnCancelar.style.display = 'none';
+        }
+    }, 1000);
+}
+
+function esperarIniciarPartida(tempo) {
+    divAguardando.textContent = `A partida começará em ${tempo}s`;
+
+    interval = setInterval(() => {
+        tempo--;
+        divAguardando.textContent = `A partida começará em ${tempo}s`;
+
+        if (tempo <= 0) {
+            clearInterval(interval);
+            divAguardando.style.display = 'none';
+            btnJogar.style.display = 'none';
+            btnCancelar.style.display = 'none';
+        }
+    }, 1000);
+}
+
+socket.on('erro', ({ mensagem }) => {
+    alert(mensagem);
 });
 
-socket.on('confirmar-reinicio', (outroJogador) => {
-    btnReiniciar.innerHTML = `<strong>${outroJogador}</strong> quer jogar com você de novo...`;
-});
-
-socket.on('ambos-jogam-denovo', (jogador) => {
-    limparTabuleiro();
-    vezJogador.textContent = jogador;
-    btnReiniciar.textContent = 'Reiniciar';
-    btnReiniciar.style.display = 'none';
-    btnReiniciar.disabled = false;
+socket.on('aguardando', () => {
+    btnJogar.style.display = 'none';
+    btnCancelar.style.display = '';
+    divAguardando.style.display = '';
+    esperarEstabelecerConexao(TEMPO_ESPERA_AGUARDAR_CONEXAO);
 });
 
 socket.on('jogadores-pareados', ({ jogadores }) => {
+    clearInterval(interval);
+    divAguardando.style.display = 'none';
+    const outroJogador = jogadores.find(j => j !== jogadorLocal);
     btnCancelar.style.display = 'none';
     btnJogar.style.display = '';
-    const outroJogador = jogadores.find(j => j !== jogadorLocal);
     btnJogar.className = btnJogar.className.replace('success', 'warning');
     btnJogar.innerHTML = `Conectado com ${outroJogador}...`;
     btnJogar.disabled = true;
 
-    aguardando.style.display = '';
-    aguardando.innerHTML = `A partida começará em <span id="stempo"></span>s`;
-    contarTempo(TEMPO_ESPERA_COMECAR_PARTIDA);
+    // mensagem de preparação para partida
+    divAguardando.style.display = '';
+    esperarIniciarPartida(TEMPO_ESPERA_COMECAR_PARTIDA);
 });
 
-socket.on('jogador-existente', () => {
-    alert('Já existe um jogador com esse nome!');
-});
 
-socket.on('aguardando', () => {
-    aguardando.style.display = '';
-    btnCancelar.style.display = '';
-    contarTempo(TEMPO_ESPERA_AGUARDAR_CONEXAO, true);
-});
-
-socket.on('iniciar', ({ jogadores }) => {
+// =================================================== PREPARAR DADOS PARA INICIAR A PARTIDA ===================================================
+socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
+    // Esconder formulário e aguardando
     form.style.display = 'none';
-    aguardando.style.display = 'none';
+    divAguardando.style.display = 'none';
+
+    // Exibir informações do jogo
     info.style.display = '';
     tabuleiro.style.display = '';
-
-    vezJogador.textContent = jogadores[0];
+    vezJogador.textContent = jogadorComeca;
     jogador1.textContent = jogadores[0];
     jogador2.textContent = jogadores[1];
+
+    // eventos de clique nas casas
+    casas.forEach(casa => {
+        casa.addEventListener('click', () => {
+            if (jogadorLocal === vezJogador.textContent) {
+                socket.emit('jogada', {
+                    sala: salaJogo,
+                    jogador: jogadorLocal,
+                    casaId: Number(casa.id[casa.id.length - 1])
+                });
+            } else {
+                alert('Não é sua vez!');
+            }
+        });
+    });
 });
 
-socket.on('mostrar-jogada', ({ idCasa, jogada, vez }) => {
-    const casa = document.getElementById(`casa-${idCasa}`);
-    const classeCasa = jogada === 'X' ? 'text-dark' : 'text-danger';
-    casa.textContent = jogada;
-    casa.className = `casa ${classeCasa}`;
+
+function exibirMenu() {
+    // Limpar estado do jogo
+    form.style.display = '';
+    info.style.display = 'none';
+    tabuleiro.style.display = 'none';
+    divAguardando.style.display = 'none';
+    btnJogarNovamente.style.display = 'none';
+    btnCancelar.style.display = 'none';
+    btnJogar.style.display = '';
+    btnJogar.className = btnJogar.className.replace('warning', 'success');
+    btnJogar.innerHTML = 'Jogar';
+    btnJogar.disabled = false;
+
+    // Limpar campos de entrada
+    inputNome.value = '';
+    inputSala.value = '';
+    jogadorLocal = '';
+    salaJogo = '';
+}
+
+// ====================================================== jogador desconectado ======================================================
+socket.on('jogador-desconectado', ({ nome }) => {
+    console.log(`🔌 Jogador ${nome} desconectado`);
+    const mensagem = `O(A) jogador(a) "${nome}" desconectou.`;
+    alert(mensagem);
+
+    // direcionar o usuário de volta ao início
+    exibirMenu();
+});
+
+
+socket.on('atualizar-tabuleiro', ({ casaId, vez, simbolo }) => {
+    const casa = document.getElementById(`casa-${casaId}`);
+    casa.textContent = simbolo;
+    casa.className = `casa ${simbolo === 'X' ? 'text-dark' : 'text-danger'}`;
     vezJogador.textContent = vez;
 });
 
-socket.on('fim-de-jogo', (jogador) => {
-    console.log('vitoria?', (jogador !== null));
-    console.log('empate?', (jogador === null));
-    console.log(`jogador: ${jogador}`);
 
+function exibirResultado(vencedor = null, meuNome = '') {
+    const modal = new bootstrap.Modal(document.getElementById('modal'));
+    const modalTitle = document.getElementById('modalLabel');
+    const modalBody = document.getElementById('modalBody');
+
+    if (vencedor === null) {
+        modalTitle.textContent = 'Empate!';
+        modalBody.innerHTML = '<p>Ninguém venceu a partida.</p>';
+    } else if (vencedor === meuNome) {
+        modalTitle.textContent = 'Vitória!';
+        modalBody.innerHTML = `<p>Parabéns <strong>${vencedor}</strong>, você venceu!</p>`;
+    } else {
+        modalTitle.textContent = 'Derrota';
+        modalBody.innerHTML = `<p><strong>${vencedor}</strong> venceu a partida.</p>`;
+    }
+
+    modal.show();
+}
+
+socket.on('fim-de-jogo', (jogador) => {
     if (jogador === null) {
         exibirResultado(null);
     } else {
         exibirResultado(jogador, jogadorLocal);
     }
-    btnReiniciar.style.display = '';
-    btnReiniciar.disabled = false;
+    // Exibir botão de reiniciar
+    btnJogarNovamente.style.display = '';
+    btnJogarNovamente.disabled = false;
+});
+
+socket.on('aguardando-reiniciar', ({ jogador }) => {
+    btnJogarNovamente.innerHTML = `<strong>${jogador}</strong> quer jogar de novo...`;
+});
+
+btnJogarNovamente.addEventListener('click', () => {
+    const jogador = jogadorLocal === jogador1.textContent ? jogador2.textContent : jogador1.textContent;
+    socket.emit('jogar-novamente', { jogador: jogadorLocal, sala: salaJogo });
+    btnJogarNovamente.disabled = true;
+    btnJogarNovamente.innerHTML = `Esperando <strong>${jogador}</strong> aceitar...`;
+});
+
+socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
+    // vez de jogar
+    vezJogador.textContent = jogadorComeca;
+
+    // limpar tabuleiro
+    casas.forEach(casa => {
+        casa.textContent = '';
+        casa.className = 'casa';
+    });
+
+    // botao reiniciar
+    btnJogarNovamente.disabled = false;
+    btnJogarNovamente.style.display = 'none';
+    btnJogarNovamente.textContent = 'Jogar novamente';
 });

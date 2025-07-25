@@ -9,6 +9,8 @@
             rel="stylesheet"
             integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
             crossorigin="anonymous">
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
         <link rel="stylesheet" href="/css/style.css">
     </head>
 
@@ -35,25 +37,29 @@
                 </div>
 
                 <button type="submit"
-                    class="btn btn-success w-100" id="btnJogar">Jogar</button>
+                    class="btn btn-success w-100" id="btnJogar"><i
+                        class="bi bi-play-fill"></i> Jogar</button>
 
                 <button type="submit"
                     class="btn btn-danger w-100"
-                    id="btnCancelar">Cancelar</button>
+                    id="btnCancelar"><i class="bi bi-x-lg"></i>
+                    Cancelar</button>
 
-                <p id="aguardando">Aguardando <span id="stempo"></span>...</p>
+                <p id="aguardando"></p>
             </form>
 
             <div class="text-center mt-4" id="info">
                 <div class="d-flex justify-content-between mx-5 fs-5">
                     <div class="d-flex align-items-center gap-1">
-                        <span class="me-1 fs-4 text-dark">X</span> <span id="jogador1"></span> 
+                        <span class="me-1 fs-4 text-dark">X</span> <span
+                            id="jogador1"></span>
                     </div>
                     <div class="d-flex align-items-center gap-1">
-                        <span id="jogador2"></span> <span class="ms-1 fs-4 text-danger">O</span>
+                        <span id="jogador2"></span> <span
+                            class="ms-1 fs-4 text-danger">O</span>
                     </div>
                 </div>
-                <div class="fs-5">Vez de <span id="vez-jogador">Isa</span></div>
+                <div class="fs-5">Vez de <span id="vez-jogador"></span></div>
             </div>
 
             <div class="tabuleiro" id="tabuleiro">
@@ -70,7 +76,7 @@
 
             <button type="submit"
                 class="btn btn-primary w-100"
-                id="btnReiniciar">Reiniciar</button>
+                id="btnJogarNovamente">Jogar novamente</button>
         </div>
 
         <!-- Modal -->

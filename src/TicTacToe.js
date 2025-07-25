@@ -2,24 +2,17 @@ class TicTacToe {
     constructor(jogador1, jogador2) {
         this.tabuleiro = Array.from({ length: 3 }, () => Array(3).fill('*'));
         this.jogadores = [jogador1, jogador2];
-        this.vez = jogador1;
-        this.simbolos = {
-            [jogador1]: 'X',
-            [jogador2]: 'O'
-        };
+        this.vez = null;
         this.reiniciar = [];
+        this.sortearSimbolos();
     }
 
-    static reconstruir(dados) {
-        const jogo = new TicTacToe(dados.jogadores[0], dados.jogadores[1]);
-
-        // Restaurar os dados salvos
-        jogo.tabuleiro = Array.isArray(dados.tabuleiro) ? dados.tabuleiro : jogo.tabuleiro;
-        jogo.vez = dados.vez || jogo.vez;
-        jogo.simbolos = dados.simbolos || jogo.simbolos;
-        jogo.reiniciar = Array.isArray(dados.reiniciar) ? dados.reiniciar : [];
-
-        return jogo;
+    sortearSimbolos() {
+        const aleatorio = Math.random() < 0.5;
+        this.simbolos = {
+            [this.jogadores[0]]: aleatorio ? 'X' : 'O',
+            [this.jogadores[1]]: aleatorio ? 'O' : 'X'
+        };
     }
 
     exibirTabuleiro() {
@@ -35,7 +28,14 @@ class TicTacToe {
         const linha = Math.floor(posicao / 3);
         const coluna = posicao % 3;
 
-        if (this.tabuleiro[linha][coluna] !== '*' || this.vez !== jogador) return false;
+        if (this.tabuleiro[linha][coluna] !== '*') {
+            console.log('=== Jogada inválida: casa já ocupada ===');
+            return false;
+        }
+        if (this.vez !== jogador) {
+            console.log(`=== Jogada inválida: não é a vez de ${jogador} ===`);
+            return false;
+        }
 
         this.tabuleiro[linha][coluna] = this.simbolos[jogador];
         this.vez = this.jogadores.find(j => j !== jogador);
