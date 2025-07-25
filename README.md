@@ -7,6 +7,7 @@ Este projeto é um jogo da velha, com versão multiplayer, desenvolvido com Node
 - NodeJs
 - ExpressJs
 - Socket.io
+- Bootstrap
 
 ## Como funciona?
 
