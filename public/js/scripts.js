@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("https://tic-tac-toe-liard-one.vercel.app/");
 
 // // ============================== Variáveis de estado ==============================
 let jogadorLocal = '';
