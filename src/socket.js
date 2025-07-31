@@ -55,7 +55,8 @@ function setupSocket(io) {
 
                     io.to(sala).emit('iniciar', {
                         jogadores: salas[sala].jogadores.map(j => j.nome),
-                        jogadorComeca: salas[sala].jogo.vez
+                        jogadorComeca: salas[sala].jogo.vez,
+                        simbolos: salas[sala].jogo.simbolos
                     });
                 }, TEMPO_ESPERA_INICIAR_PARTIDA);
             } else {
@@ -83,6 +84,9 @@ function setupSocket(io) {
             }
 
             const jogo = salas[sala].jogo;
+
+            if (!jogo.jogando) return;
+
             // Verifica se o jogador está na sala
             console.log('=== jogada atual ===');
             console.log({ sala, jogador, casaId });
@@ -110,9 +114,11 @@ function setupSocket(io) {
             if (resultado === null) {
                 console.log(`🔄 Jogo em andamento na sala ${sala}`);
             } else if (resultado === -1) {
+                this.jogando = false;
                 io.to(sala).emit('fim-de-jogo', null);
                 console.log(`🤝 Empate na sala ${sala}`);
             } else {
+                this.jogando = false;
                 const vencedor = jogo.getJogadorPorSimbolo(resultado.simbolo);
                 io.to(sala).emit('fim-de-jogo', vencedor);
                 console.log(`🏆 Vencedor na sala ${sala}: ${vencedor}`);
@@ -138,11 +144,11 @@ function setupSocket(io) {
                 // Reinicia o jogo
                 const jogador1 = salas[sala].jogadores[0].nome;
                 const jogador2 = salas[sala].jogadores[1].nome;
-                salas[sala].jogo = new TicTacToe(jogador1, jogador2);
                 salas[sala].jogo.vez = Math.random() < 0.5 ? jogador1 : jogador2;
 
                 io.to(sala).emit('ambos-reiniciam', {
-                    jogadorComeca: salas[sala].jogo.vez
+                    jogadorComeca: salas[sala].jogo.vez,
+                    simbolos: salas[sala].jogo.simbolos
                 });
                 console.log(`Partida reiniciada na sala "${sala}" com jogadores:`, salas[sala].jogadores.map(j => j.nome));
             }
@@ -167,8 +173,8 @@ function setupSocket(io) {
                     // remover o jogador da sala
                     salas[sala].jogadores.splice(index, 1);
 
-                    // se a sala ficar vazia, remover a sala
-                    if (salas[sala].jogadores.length === 0) {
+                    // se a sala ficar com menos de 2 jogadores, remover a sala
+                    if (salas[sala].jogadores.length < 2) {
                         console.log(`Removendo sala "${sala}" por estar vazia`);
                         delete salas[sala];
                         clearTimeout(timeoutRemoverSala[sala]);
@@ -179,12 +185,6 @@ function setupSocket(io) {
                 }
             }
         });
-
-        // teste
-        socket.on('teste', msg => {
-            console.log('Recebido teste:', msg);
-        });
-
     });
 }
 
