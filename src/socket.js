@@ -176,11 +176,15 @@ function setupSocket(io) {
 
         // ====================================================== mensagens ======================================================
         socket.on('enviar-msg', ({ sala, remetente, msg }) => {
-            if (!nome || !msg) return;
+            if (!remetente || !msg) return;
 
             salas[sala].jogo.mensagens.push({ remetente, msg });
 
+            // manter as últimas 20 mensagens
+            salas[sala].jogo.mensagens = salas[sala].jogo.mensagens.slice(-50);
+
             io.to(sala).emit('list-msg', salas[sala].jogo.mensagens);
+            socket.to(sala).emit('try-notfy');
         });
 
 

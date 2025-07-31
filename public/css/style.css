@@ -50,16 +50,31 @@ body {
 }
 
 .chat-header {
-    padding: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* padding: 0 10px; */
+    padding: 5px 10px;
     border-bottom: 1px solid #000;
+}
+
+.mensagens {
+    height: 505px;
+    overflow-y: auto;
 }
 
 .mensagem {
     padding: 10px;
     border-bottom: 3px solid #8c8c8c;
+}
+
+.notificacao {
+    aspect-ratio: 1 / 1;
+    height: 20px;
+    background-color: #000;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 

@@ -16,6 +16,7 @@ const STATUS_MESSAGE = {
     INFO: 'info',
     SUCCESS: 'success',
 }
+let numMensagensNaoLidas = 0;
 
 // ============================== Elementos DOM ==============================
 const formNomeSala = document.getElementById('formNomeSala');
@@ -35,6 +36,7 @@ const toastEl = document.getElementById('toast');
 const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
 const placar = document.getElementById('placar');
+const notificacao = document.getElementById('notificacao');
 
 // chat
 const botaoToogleChat = document.getElementById('botaoToogleChat');
@@ -42,13 +44,25 @@ const chat = document.getElementById('chat');
 const formChat = document.getElementById('formChat');
 const inputMensagem = document.getElementById('inputMensagem');
 const divMensagens = document.getElementById('mensagens');
+const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 
 // ============================== chat ==============================
+function popUpChatEstaAberto() {
+    return botaoToogleChat.className.includes('up');
+}
+
 botaoToogleChat.addEventListener('click', () => {
-    botaoToogleChat.className = botaoToogleChat.className.includes('up') ?
+    const toUp = botaoToogleChat.className.includes('up');
+
+    botaoToogleChat.className = toUp ?
     botaoToogleChat.className.replace('up', 'down') :
     botaoToogleChat.className.replace('down', 'up');
     chat.classList.toggle('active');
+    
+    inputMensagem.disabled = !toUp;
+    btnEnviarMensagem.disabled = !toUp;
+
+    console.log(`Aberto? ${toUp}`);
 });
 
 formChat.addEventListener('submit', (e) => {
@@ -65,9 +79,31 @@ formChat.addEventListener('submit', (e) => {
         remetente: inputNome.value,
         msg: inputMensagem.value
     }
+
+    inputMensagem.value = '';
+
     console.log(obj);
 
     socket.emit('enviar-msg', obj);
+});
+
+function atualizaNumMensagensNaoLidas(num) {
+    notificacao.textContent = num;
+}
+
+socket.on('try-notfy', () => {
+    const aberto = popUpChatEstaAberto();
+    console.log(object);
+
+    if (aberto) {
+        numMensagensNaoLidas = 0;
+        notificacao.style.display = 'none';
+    } else {
+        numMensagensNaoLidas++;
+        notificacao.style.display = '';
+    }
+
+    atualizaNumMensagensNaoLidas(numMensagensNaoLidas);
 });
 
 socket.on('list-msg', (mensagens) => {
@@ -95,6 +131,7 @@ function inicializarInterface() {
     btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
     chat.style.display = 'none';
+    notificacao.style.display = 'none';
 }
 inicializarInterface();
 
