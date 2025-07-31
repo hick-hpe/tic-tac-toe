@@ -6,6 +6,7 @@ class TicTacToe {
         this.reiniciar = [];
         this.sortearSimbolos();
         this.jogando = true;
+
     }
 
     sortearSimbolos() {

@@ -3,6 +3,13 @@ const timeoutRemoverSala = {};
 const TicTacToe = require('./TicTacToe');
 const TEMPO_ESPERA_INICIAR_PARTIDA = 5000;
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20000;
+const STATUS = {
+    INICIADO: 0,
+    CARREGANDO_PARTIDA: 1,
+    JOGO_EM_ANDAMENTO: 2,
+    JOGO_FINALIZADO: 3,
+}
+let statusAtual = STATUS.INICIADO;
 
 function setupSocket(io) {
     io.on('connection', (socket) => {
@@ -48,15 +55,20 @@ function setupSocket(io) {
                     jogadores: salas[sala].jogadores.map(j => j.nome)
                 });
 
+                // atualiza status
+                statusAtual = STATUS.CARREGANDO_PARTIDA;
+
                 // aguardar 3 segundos antes de iniciar a partida
                 setTimeout(() => {
+                     
+                    if (!salas[sala]) return;
+
                     const numJogadorComeca = Math.floor(Math.random() * 2);
                     salas[sala].jogo.vez = salas[sala].jogadores[numJogadorComeca].nome;
 
                     io.to(sala).emit('iniciar', {
                         jogadores: salas[sala].jogadores.map(j => j.nome),
                         jogadorComeca: salas[sala].jogo.vez,
-                        simbolos: salas[sala].jogo.simbolos
                     });
                 }, TEMPO_ESPERA_INICIAR_PARTIDA);
             } else {
@@ -148,7 +160,6 @@ function setupSocket(io) {
 
                 io.to(sala).emit('ambos-reiniciam', {
                     jogadorComeca: salas[sala].jogo.vez,
-                    simbolos: salas[sala].jogo.simbolos
                 });
                 console.log(`Partida reiniciada na sala "${sala}" com jogadores:`, salas[sala].jogadores.map(j => j.nome));
             }
@@ -173,15 +184,19 @@ function setupSocket(io) {
                     // remover o jogador da sala
                     salas[sala].jogadores.splice(index, 1);
 
-                    // se a sala ficar com menos de 2 jogadores, remover a sala
-                    if (salas[sala].jogadores.length < 2) {
-                        console.log(`Removendo sala "${sala}" por estar vazia`);
-                        delete salas[sala];
+                    console.log(`Removendo sala "${sala}"...`);
+                    delete salas[sala];
+                    if (timeoutRemoverSala[sala]) {
                         clearTimeout(timeoutRemoverSala[sala]);
-                    } else {
-                        // se ainda tiver jogadores, informar aos restantes
-                        io.to(sala).emit('jogador-desconectado', { nome: jogador });
+                        delete timeoutRemoverSala[sala];
                     }
+
+                    // tirar o socket da sala
+                    socket.leave(sala);
+                    io.to(sala).emit('jogador-desconectado', {
+                        nome: jogador,
+                        status: statusAtual
+                    });
                 }
             }
         });

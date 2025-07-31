@@ -8,13 +8,13 @@ const statusToastIcon = {
     'warning': '<i class="bi bi-exclamation-triangle"></i>',
     'danger': '<i class="bi bi-x-circle"></i>',
     'info': '<i class="bi bi-arrow-clockwise"></i>',
-    'succes': '<i class="bi bi-check-circle"></i>'
+    'success': '<i class="bi bi-check-circle"></i>'
 }
 const STATUS_MESSAGE = {
     WARNING: 'warning',
     DANGER: 'danger',
     INFO: 'info',
-    SUCCESS: 'succes',
+    SUCCESS: 'success',
 }
 
 // // ============================== Elementos DOM ==============================
@@ -31,9 +31,8 @@ const btnJogar = document.querySelector('#btnJogar');
 const btnJogarNovamente = document.querySelector('#btnJogarNovamente');
 const btnCancelar = document.querySelector('#btnCancelar');
 const casas = document.querySelectorAll('.casa');
-const simboloJ1 = document.getElementById('simboloJ1');
-const simboloJ2 = document.getElementById('simboloJ2');
-const toast = document.getElementById('toast');
+const toastEl = document.getElementById('toast');
+const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
 
 
@@ -67,6 +66,7 @@ form.addEventListener('submit', (e) => {
             socket.emit('criar-sala', { nome, sala });
         } else {
             toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.DANGER]} Preencha os dois campos!`;
+            toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.DANGER}`);
             toast.show();
         }
     } else if (botaoClicado.id === 'btnCancelar') {
@@ -110,6 +110,7 @@ function esperarIniciarPartida(tempo) {
 
 socket.on('erro', ({ mensagem }) => {
     toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.DANGER]} ${mensagem}`;
+    toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.DANGER}`);
     toast.show();
 });
 
@@ -137,7 +138,7 @@ socket.on('jogadores-pareados', ({ jogadores }) => {
 
 
 // =================================================== PREPARAR DADOS PARA INICIAR A PARTIDA ===================================================
-socket.on('iniciar', ({ jogadores, jogadorComeca, simbolos }) => {
+socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
     // Esconder formulário e aguardando
     form.style.display = 'none';
     divAguardando.style.display = 'none';
@@ -148,16 +149,6 @@ socket.on('iniciar', ({ jogadores, jogadorComeca, simbolos }) => {
     vezJogador.textContent = jogadorComeca;
     jogador1.textContent = jogadores[0];
     jogador2.textContent = jogadores[1];
-
-    const j1 = jogador1.textContent;
-    const j2 = jogador2.textContent;
-    simboloJ1.textContent = simbolos[j1];
-    simboloJ2.textContent = simbolos[j2];
-    
-    // colocar preto para 'X' e vermelho para 'O'
-    let classeSimbolo = (simbolo) => simbolo === 'X' ? 'text-dark' : 'text-danger';
-    simboloJ1.className = `me-1 fs-4 ${classeSimbolo(simbolos[j1])}`;
-    simboloJ2.className = `ms-1 fs-4 ${classeSimbolo(simbolos[j2])}`;
 
     // eventos de clique nas casas
     casas.forEach(casa => {
@@ -170,6 +161,7 @@ socket.on('iniciar', ({ jogadores, jogadorComeca, simbolos }) => {
                 });
             } else {
                 toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} Não é sua vez!`;
+                toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.DANGER}`);
                 toast.show();
             }
         });
@@ -198,13 +190,23 @@ function exibirMenu() {
 }
 
 // ====================================================== jogador desconectado ======================================================
-socket.on('jogador-desconectado', ({ nome }) => {
+socket.on('jogador-desconectado', ({ nome, status }) => {
     console.log(`🔌 Jogador ${nome} desconectado`);
     const mensagem = `O(A) jogador(a) <strong>${nome}</strong> desconectou.`;
     toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} ${mensagem}`;
+    toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.WARNING}`);
     toast.show();
 
-    // direcionar o usuário de volta ao início
+    if (status === 1) {
+        // no form ainda
+        clearInterval(interval);
+        btnJogar.disabled = false;
+        btnJogar.className = btnJogar.className.replace('warning', 'success');
+        btnJogar.innerHTML = '<iclass="bi bi-play-fill"></i> Jogar'
+        divAguardando.textContent = '';
+        divAguardando.style.display = 'none';
+    }
+    
     exibirMenu();
 });
 
@@ -259,18 +261,15 @@ btnJogarNovamente.addEventListener('click', () => {
     btnJogarNovamente.innerHTML = `Esperando <strong>${jogador}</strong> aceitar...`;
 });
 
-socket.on('ambos-reiniciam', ({ jogadorComeca, simbolos }) => {
+socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
+    toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.INFO]} Partida reiniciada!`;
+    toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.INFO}`);
+    toast.show();
+
     // vez de jogar
     vezJogador.textContent = jogadorComeca;
     const j1 = jogador1.textContent;
     const j2 = jogador2.textContent;
-    simboloJ1.textContent = simbolos[j1];
-    simboloJ2.textContent = simbolos[j2];
-
-    // colocar preto para 'X' e vermelho para 'O'
-    let classeSimbolo = (simbolo) => simbolo === 'X' ? 'text-dark' : 'text-danger';
-    simboloJ1.className = `me-1 fs-4 ${classeSimbolo(simbolos[j1])}`;
-    simboloJ2.className = `ms-1 fs-4 ${classeSimbolo(simbolos[j2])}`;
 
     // limpar tabuleiro
     casas.forEach(casa => {
