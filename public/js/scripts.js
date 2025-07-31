@@ -54,6 +54,11 @@ function popUpChatEstaAberto() {
 botaoToogleChat.addEventListener('click', () => {
     const toUp = botaoToogleChat.className.includes('up');
 
+    if (toUp) {
+        notificacao.style.display = 'none';
+        numMensagensNaoLidas = 0;
+    }
+
     botaoToogleChat.className = toUp ?
     botaoToogleChat.className.replace('up', 'down') :
     botaoToogleChat.className.replace('down', 'up');
@@ -93,14 +98,14 @@ function atualizaNumMensagensNaoLidas(num) {
 
 socket.on('try-notfy', () => {
     const aberto = popUpChatEstaAberto();
-    console.log(object);
+    console.log(`Exibir not? ${aberto}`);
 
     if (aberto) {
-        numMensagensNaoLidas = 0;
-        notificacao.style.display = 'none';
-    } else {
-        numMensagensNaoLidas++;
         notificacao.style.display = '';
+        numMensagensNaoLidas++;
+    } else {
+        notificacao.style.display = 'none';
+        numMensagensNaoLidas = 0;
     }
 
     atualizaNumMensagensNaoLidas(numMensagensNaoLidas);
