@@ -1,6 +1,6 @@
 const socket = io();
 
-// // ============================== Variáveis de estado ==============================
+// ============================== Variáveis de estado ==============================
 let jogadorLocal = '';
 let salaJogo = '';
 let interval;
@@ -17,7 +17,7 @@ const STATUS_MESSAGE = {
     SUCCESS: 'success',
 }
 
-// // ============================== Elementos DOM ==============================
+// ============================== Elementos DOM ==============================
 const form = document.querySelector('form');
 const inputNome = document.getElementById('nome');
 const inputSala = document.getElementById('sala');
@@ -34,13 +34,13 @@ const casas = document.querySelectorAll('.casa');
 const toastEl = document.getElementById('toast');
 const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
+const placar = document.getElementById('placar');
 
-
-// // ============================== Constantes ==============================
+// ============================== Constantes ==============================
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20;
 const TEMPO_ESPERA_COMECAR_PARTIDA = 5;
 
-// // ============================== Inicialização ==============================
+// ============================== Inicialização ==============================
 function inicializarInterface() {
     info.style.display = 'none';
     tabuleiro.style.display = 'none';
@@ -206,7 +206,7 @@ socket.on('jogador-desconectado', ({ nome, status }) => {
         divAguardando.textContent = '';
         divAguardando.style.display = 'none';
     }
-    
+
     exibirMenu();
 });
 
@@ -238,12 +238,16 @@ function exibirResultado(vencedor = null, meuNome = '') {
     modal.show();
 }
 
-socket.on('fim-de-jogo', (jogador) => {
+socket.on('fim-de-jogo', (obj) => {
 
-    if (jogador === null) {
+    console.log('objeto recebido: ', obj);
+
+    if (obj === null) {
         exibirResultado(null);
     } else {
-        exibirResultado(jogador, jogadorLocal);
+        const { vencedor, pontos } = obj;
+        placar.textContent = `${pontos[0]} | ${pontos[1]}`;
+        exibirResultado(vencedor, jogadorLocal);
     }
     // Exibir botão de reiniciar
     btnJogarNovamente.style.display = '';

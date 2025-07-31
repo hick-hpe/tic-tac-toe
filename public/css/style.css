@@ -3,6 +3,8 @@ body {
     place-items: center;
     height: 100vh;
     background-color: #ececec;
+    font-family: monospace;
+    
 }
 
 .container {

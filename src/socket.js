@@ -63,8 +63,7 @@ function setupSocket(io) {
                      
                     if (!salas[sala]) return;
 
-                    const numJogadorComeca = Math.floor(Math.random() * 2);
-                    salas[sala].jogo.vez = salas[sala].jogadores[numJogadorComeca].nome;
+                    statusAtual = STATUS.JOGO_EM_ANDAMENTO;
 
                     io.to(sala).emit('iniciar', {
                         jogadores: salas[sala].jogadores.map(j => j.nome),
@@ -97,7 +96,7 @@ function setupSocket(io) {
 
             const jogo = salas[sala].jogo;
 
-            if (!jogo.jogando) return;
+            if (statusAtual !== STATUS.JOGO_EM_ANDAMENTO) return;
 
             // Verifica se o jogador está na sala
             console.log('=== jogada atual ===');
@@ -130,9 +129,14 @@ function setupSocket(io) {
                 io.to(sala).emit('fim-de-jogo', null);
                 console.log(`🤝 Empate na sala ${sala}`);
             } else {
-                this.jogando = false;
                 const vencedor = jogo.getJogadorPorSimbolo(resultado.simbolo);
-                io.to(sala).emit('fim-de-jogo', vencedor);
+                jogo.placar[vencedor]++;
+                const j1 = jogo.jogadores[0];
+                const j2 = jogo.jogadores[1];
+                io.to(sala).emit('fim-de-jogo', {
+                    vencedor,
+                    pontos: [jogo.placar[j1], jogo.placar[j2]]
+                });
                 console.log(`🏆 Vencedor na sala ${sala}: ${vencedor}`);
             }
         });
@@ -156,7 +160,7 @@ function setupSocket(io) {
                 // Reinicia o jogo
                 const jogador1 = salas[sala].jogadores[0].nome;
                 const jogador2 = salas[sala].jogadores[1].nome;
-                salas[sala].jogo.vez = Math.random() < 0.5 ? jogador1 : jogador2;
+                salas[sala].jogo.vez = jogador1;
 
                 io.to(sala).emit('ambos-reiniciam', {
                     jogadorComeca: salas[sala].jogo.vez,

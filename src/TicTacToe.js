@@ -2,18 +2,15 @@ class TicTacToe {
     constructor(jogador1, jogador2) {
         this.tabuleiro = Array.from({ length: 3 }, () => Array(3).fill('*'));
         this.jogadores = [jogador1, jogador2];
-        this.vez = null;
+        this.vez = jogador1;
         this.reiniciar = [];
-        this.sortearSimbolos();
-        this.jogando = true;
-
-    }
-
-    sortearSimbolos() {
-        const aleatorio = Math.random() < 0.5;
         this.simbolos = {
-            [this.jogadores[0]]: aleatorio ? 'X' : 'O',
-            [this.jogadores[1]]: aleatorio ? 'O' : 'X'
+            [jogador1]: 'X',
+            [jogador2]: 'O'
+        };
+        this.placar = {
+            [jogador1]: 0,
+            [jogador2]: 0,
         };
     }
 
