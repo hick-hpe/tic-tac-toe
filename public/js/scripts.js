@@ -1,4 +1,4 @@
-const socket = io("https://tic-tac-toe-liard-one.vercel.app/");
+const socket = io("http://localhost:3000");
 
 // // ============================== Variáveis de estado ==============================
 let jogadorLocal = '';
@@ -19,6 +19,8 @@ const btnJogar = document.querySelector('#btnJogar');
 const btnJogarNovamente = document.querySelector('#btnJogarNovamente');
 const btnCancelar = document.querySelector('#btnCancelar');
 const casas = document.querySelectorAll('.casa');
+const simboloJ1 = document.getElementById('simboloJ1');
+const simboloJ2 = document.getElementById('simboloJ2');
 
 // // ============================== Constantes ==============================
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20;
@@ -118,7 +120,7 @@ socket.on('jogadores-pareados', ({ jogadores }) => {
 
 
 // =================================================== PREPARAR DADOS PARA INICIAR A PARTIDA ===================================================
-socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
+socket.on('iniciar', ({ jogadores, jogadorComeca, simbolos }) => {
     // Esconder formulário e aguardando
     form.style.display = 'none';
     divAguardando.style.display = 'none';
@@ -129,6 +131,16 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
     vezJogador.textContent = jogadorComeca;
     jogador1.textContent = jogadores[0];
     jogador2.textContent = jogadores[1];
+
+    const j1 = jogador1.textContent;
+    const j2 = jogador2.textContent;
+    simboloJ1.textContent = simbolos[j1];
+    simboloJ2.textContent = simbolos[j2];
+    
+    // colocar preto para 'X' e vermelho para 'O'
+    let classeSimbolo = (simbolo) => simbolo === 'X' ? 'text-dark' : 'text-danger';
+    simboloJ1.className = `me-1 fs-4 ${classeSimbolo(simbolos[j1])}`;
+    simboloJ2.className = `ms-1 fs-4 ${classeSimbolo(simbolos[j2])}`;
 
     // eventos de clique nas casas
     casas.forEach(casa => {
@@ -206,6 +218,7 @@ function exibirResultado(vencedor = null, meuNome = '') {
 }
 
 socket.on('fim-de-jogo', (jogador) => {
+
     if (jogador === null) {
         exibirResultado(null);
     } else {
@@ -227,9 +240,18 @@ btnJogarNovamente.addEventListener('click', () => {
     btnJogarNovamente.innerHTML = `Esperando <strong>${jogador}</strong> aceitar...`;
 });
 
-socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
+socket.on('ambos-reiniciam', ({ jogadorComeca, simbolos }) => {
     // vez de jogar
     vezJogador.textContent = jogadorComeca;
+    const j1 = jogador1.textContent;
+    const j2 = jogador2.textContent;
+    simboloJ1.textContent = simbolos[j1];
+    simboloJ2.textContent = simbolos[j2];
+
+    // colocar preto para 'X' e vermelho para 'O'
+    let classeSimbolo = (simbolo) => simbolo === 'X' ? 'text-dark' : 'text-danger';
+    simboloJ1.className = `me-1 fs-4 ${classeSimbolo(simbolos[j1])}`;
+    simboloJ2.className = `ms-1 fs-4 ${classeSimbolo(simbolos[j2])}`;
 
     // limpar tabuleiro
     casas.forEach(casa => {
