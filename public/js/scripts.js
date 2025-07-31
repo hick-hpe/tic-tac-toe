@@ -4,6 +4,18 @@ const socket = io();
 let jogadorLocal = '';
 let salaJogo = '';
 let interval;
+const statusToastIcon = {
+    'warning': '<i class="bi bi-exclamation-triangle"></i>',
+    'danger': '<i class="bi bi-x-circle"></i>',
+    'info': '<i class="bi bi-arrow-clockwise"></i>',
+    'succes': '<i class="bi bi-check-circle"></i>'
+}
+const STATUS_MESSAGE = {
+    WARNING: 'warning',
+    DANGER: 'danger',
+    INFO: 'info',
+    SUCCESS: 'succes',
+}
 
 // // ============================== Elementos DOM ==============================
 const form = document.querySelector('form');
@@ -21,6 +33,9 @@ const btnCancelar = document.querySelector('#btnCancelar');
 const casas = document.querySelectorAll('.casa');
 const simboloJ1 = document.getElementById('simboloJ1');
 const simboloJ2 = document.getElementById('simboloJ2');
+const toast = document.getElementById('toast');
+const toastMessage = document.getElementById('toastMessage');
+
 
 // // ============================== Constantes ==============================
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20;
@@ -51,7 +66,8 @@ form.addEventListener('submit', (e) => {
         if (nome && sala) {
             socket.emit('criar-sala', { nome, sala });
         } else {
-            alert("Preencha os dois campos.");
+            toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.DANGER]} Preencha os dois campos!`;
+            toast.show();
         }
     } else if (botaoClicado.id === 'btnCancelar') {
         btnJogar.style.display = '';
@@ -93,7 +109,8 @@ function esperarIniciarPartida(tempo) {
 }
 
 socket.on('erro', ({ mensagem }) => {
-    alert(mensagem);
+    toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.DANGER]} ${mensagem}`;
+    toast.show();
 });
 
 socket.on('aguardando', () => {
@@ -152,7 +169,8 @@ socket.on('iniciar', ({ jogadores, jogadorComeca, simbolos }) => {
                     casaId: Number(casa.id[casa.id.length - 1])
                 });
             } else {
-                alert('Não é sua vez!');
+                toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} Não é sua vez!`;
+                toast.show();
             }
         });
     });
@@ -182,8 +200,9 @@ function exibirMenu() {
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome }) => {
     console.log(`🔌 Jogador ${nome} desconectado`);
-    const mensagem = `O(A) jogador(a) "${nome}" desconectou.`;
-    alert(mensagem);
+    const mensagem = `O(A) jogador(a) <strong>${nome}</strong> desconectou.`;
+    toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} ${mensagem}`;
+    toast.show();
 
     // direcionar o usuário de volta ao início
     exibirMenu();

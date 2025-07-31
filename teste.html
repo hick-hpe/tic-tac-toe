@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap Toast</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+</head>
+<body class="p-3">
+
+    <br>
+<!-- Não é sua vez -->
+<div class="toast align-items-center text-bg-warning border-0">
+  <div class="d-flex">
+    <div class="toast-body">
+      <i class="bi bi-exclamation-triangle"></i> Não é sua vez!
+    </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<br>
+<!-- Jogada inválida -->
+<div class="toast align-items-center text-bg-danger border-0">
+  <div class="d-flex">
+    <div class="toast-body">
+      <i class="bi bi-x-circle"></i> Jogada inválida!
+    </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<br>
+<!-- Você ganhou -->
+<div class="toast align-items-center text-bg-success border-0">
+  <div class="d-flex">
+    <div class="toast-body">
+      <i class="bi bi-check-circle"></i> Você ganhou!
+    </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<br>
+<!-- Você perdeu -->
+<div class="toast align-items-center text-bg-danger border-0">
+  <div class="d-flex">
+    <div class="toast-body">
+      <i class="bi bi-x-circle"></i> Você perdeu!
+    </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<br>
+<!-- Partida reiniciada -->
+<div class="toast align-items-center text-bg-info border-0">
+  <div class="d-flex">
+    <div class="toast-body">
+      <i class="bi bi-arrow-clockwise"></i> Partida reiniciada!
+    </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<br>
+<!-- Jogador desconectou -->
+<div class="toast align-items-center border-0 position-absolute bottom-0 end-0 me-3 mb-3 text-bg-warning">
+  <div class="d-flex">
+    <div class="toast-body">
+      <i class="bi bi-exclamation-triangle"></i> Jogador <strong>fulano</strong> desconectou!
+    </div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const listToastEl = document.querySelectorAll('.toast');
+
+    listToastEl.forEach(toastEl => {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show()
+    });
+
+  </script>
+</body>
+</html>
