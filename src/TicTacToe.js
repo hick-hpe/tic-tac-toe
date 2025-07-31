@@ -5,6 +5,7 @@ class TicTacToe {
         this.vez = null;
         this.reiniciar = [];
         this.sortearSimbolos();
+        this.jogando = true;
     }
 
     sortearSimbolos() {
@@ -60,7 +61,8 @@ class TicTacToe {
             this.tabuleiro = Array.from({ length: 3 }, () => Array(3).fill('*'));
             this.reiniciar = [];
         }
-
+        
+        console.log('Estado final:', this.reiniciar);
         console.log('Retornando podeReiniciar:', podeReiniciar);
         return podeReiniciar;
     }
