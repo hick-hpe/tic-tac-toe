@@ -60,7 +60,7 @@ function setupSocket(io) {
 
                 // aguardar 3 segundos antes de iniciar a partida
                 setTimeout(() => {
-                     
+
                     if (!salas[sala]) return;
 
                     statusAtual = STATUS.JOGO_EM_ANDAMENTO;
@@ -173,6 +173,16 @@ function setupSocket(io) {
                 io.to(outroJogador.id).emit('aguardando-reiniciar', { jogador });
             }
         });
+
+        // ====================================================== mensagens ======================================================
+        socket.on('enviar-msg', ({ sala, remetente, msg }) => {
+            if (!nome || !msg) return;
+
+            salas[sala].jogo.mensagens.push({ remetente, msg });
+
+            io.to(sala).emit('list-msg', salas[sala].jogo.mensagens);
+        });
+
 
         // ====================================================== jogador desconectado ======================================================
         socket.on('disconnect', () => {

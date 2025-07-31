@@ -18,7 +18,7 @@ const STATUS_MESSAGE = {
 }
 
 // ============================== Elementos DOM ==============================
-const form = document.querySelector('form');
+const formNomeSala = document.getElementById('formNomeSala');
 const inputNome = document.getElementById('nome');
 const inputSala = document.getElementById('sala');
 const info = document.querySelector('#info');
@@ -36,6 +36,53 @@ const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
 const placar = document.getElementById('placar');
 
+// chat
+const botaoToogleChat = document.getElementById('botaoToogleChat');
+const chat = document.getElementById('chat');
+const formChat = document.getElementById('formChat');
+const inputMensagem = document.getElementById('inputMensagem');
+const divMensagens = document.getElementById('mensagens');
+
+// ============================== chat ==============================
+botaoToogleChat.addEventListener('click', () => {
+    botaoToogleChat.className = botaoToogleChat.className.includes('up') ?
+    botaoToogleChat.className.replace('up', 'down') :
+    botaoToogleChat.className.replace('down', 'up');
+    chat.classList.toggle('active');
+});
+
+formChat.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    if (!inputMensagem.value) {
+        console.log(`Mensagem n send: "${inputMensagem.value}"`)
+        return;
+    };
+
+    console.log('enviando...')
+    const obj = {
+        sala: inputSala.value,
+        remetente: inputNome.value,
+        msg: inputMensagem.value
+    }
+    console.log(obj);
+
+    socket.emit('enviar-msg', obj);
+});
+
+socket.on('list-msg', (mensagens) => {
+    divMensagens.innerHTML = '';
+
+    mensagens.forEach(msg => {
+        divMensagens.innerHTML += `
+            <div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div>
+        `;
+    });
+});
+
 // ============================== Constantes ==============================
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20;
 const TEMPO_ESPERA_COMECAR_PARTIDA = 5;
@@ -47,11 +94,12 @@ function inicializarInterface() {
     divAguardando.style.display = 'none';
     btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
+    chat.style.display = 'none';
 }
 inicializarInterface();
 
 // ============================== Submissão do formulário ==============================
-form.addEventListener('submit', (e) => {
+formNomeSala.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const nome = inputNome.value.trim();
@@ -140,7 +188,7 @@ socket.on('jogadores-pareados', ({ jogadores }) => {
 // =================================================== PREPARAR DADOS PARA INICIAR A PARTIDA ===================================================
 socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
     // Esconder formulário e aguardando
-    form.style.display = 'none';
+    formNomeSala.style.display = 'none';
     divAguardando.style.display = 'none';
 
     // Exibir informações do jogo
@@ -166,12 +214,15 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
             }
         });
     });
+
+    // chat disponível
+    chat.style.display = '';
 });
 
 
 function exibirMenu() {
     // Limpar estado do jogo
-    form.style.display = '';
+    formNomeSala.style.display = '';
     info.style.display = 'none';
     tabuleiro.style.display = 'none';
     divAguardando.style.display = 'none';
@@ -188,6 +239,21 @@ function exibirMenu() {
     jogadorLocal = '';
     salaJogo = '';
 }
+
+function contraMenu() {
+    // Limpar estado do jogo
+    formNomeSala.style.display = 'none';
+    info.style.display = '';
+    tabuleiro.style.display = '';
+    divAguardando.style.display = '';
+    btnJogarNovamente.style.display = '';
+    btnCancelar.style.display = '';
+    btnJogar.style.display = 'none';
+    btnJogar.className = btnJogar.className.replace('warning', 'success');
+    btnJogar.innerHTML = 'Jogar';
+    btnJogar.disabled = true;
+}
+// contraMenu()
 
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome, status }) => {

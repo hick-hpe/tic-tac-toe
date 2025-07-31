@@ -12,6 +12,7 @@ class TicTacToe {
             [jogador1]: 0,
             [jogador2]: 0,
         };
+        this.mensagens = []
     }
 
     exibirTabuleiro() {
@@ -58,6 +59,7 @@ class TicTacToe {
             console.log('=== Ambos aceitaram, reiniciando jogo ===');
             this.tabuleiro = Array.from({ length: 3 }, () => Array(3).fill('*'));
             this.reiniciar = [];
+            this.mensagens = [];
         }
         
         console.log('Estado final:', this.reiniciar);
