@@ -151,11 +151,39 @@
       </div>
 
       <div id="mensagens" class="mensagens">
-        <div class="text-muted text-center p-3">Nenhuma mensagem enviada...</div>
+        <div class="text-muted text-center p-3">
+          <!-- Nenhuma mensagem enviada... -->
+           <div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div><div class="mensagem">
+                <strong>${msg.remetente}</strong> <br>
+                <small>${msg.msg}</small>
+            </div>
+        </div>
       </div>
 
-      <form id="formChat" class="d-flex align-items-center position-absolute bottom-0 gap-2 p-1 w-100 border-0 border-top border-dark">
-        <textarea type="text" id="inputMensagem" class="form-control" placeholder="Digite algo..." rows="1"></textarea>
+      <form id="formChat" class="d-flex align-items-center gap-2 p-1 w-100 border-0 border-top border-dark">
+        <textarea type="text" id="inputMensagem" class="form-control" maxlength="69" placeholder="Digite algo..." rows="1" style="resize: none;"></textarea>
+        <small id="numCharInputMensagem"></small>
         <button type="submit" id="btnEnviarMensagem" class="btn btn-primary rounded-circle"><i class="bi bi-send"></i></button>
       </form>
      </div>

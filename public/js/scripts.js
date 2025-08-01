@@ -44,6 +44,7 @@ const botaoToogleChat = document.getElementById('botaoToogleChat');
 const chat = document.getElementById('chat');
 const formChat = document.getElementById('formChat');
 const inputMensagem = document.getElementById('inputMensagem');
+const numCharInputMensagem = document.getElementById('numCharInputMensagem');
 const divMensagens = document.getElementById('mensagens');
 const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 
@@ -55,6 +56,30 @@ const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 function popUpChatEstaAberto() {
     return botaoToogleChat.className.includes('up');
 }
+
+
+numCharInputMensagem.textContent = `0/${inputMensagem.maxLength}`;
+inputMensagem.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        inputMensagem.value == '';
+        inputMensagem.focus();
+        btnEnviarMensagem.click();
+    }
+
+    const max = inputMensagem.maxLength;
+    const atual = inputMensagem.value.length;
+
+    numCharInputMensagem.textContent = `${atual}/${max}`;
+
+    inputMensagem.classList.remove('perto-limite', 'limite-ultrapassado');
+
+    if (atual >= max) {
+        inputMensagem.classList.add('limite-ultrapassado');
+    } else if (atual >= max * 0.8) { // 80% do limite
+        inputMensagem.classList.add('perto-limite');
+    }
+});
 
 botaoToogleChat.addEventListener('click', () => {
     const toUp = botaoToogleChat.className.includes('up');
@@ -138,6 +163,8 @@ socket.on('list-msg', (mensagens) => {
             </div>
         `;
     });
+
+    divMensagens.scrollTop = divMensagens.scrollHeight
 });
 
 // ============================== Constantes ==============================
@@ -151,7 +178,7 @@ function inicializarInterface() {
     divAguardando.style.display = 'none';
     btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
-    chat.style.display = ''; // deixar 'none'
+    chat.style.display = 'none'; // deixar 'none'
     notificacao.style.display = 'none';
 }
 inicializarInterface();
@@ -179,7 +206,14 @@ formNomeSala.addEventListener('submit', (e) => {
         btnJogar.style.display = '';
         btnCancelar.style.display = 'none';
         divAguardando.style.display = 'none';
+        socket.emit('deletar-sala', sala);
     }
+});
+
+socket.on('deletar-sala', () => {
+    toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.SUCCESS]} Sala <strong>${salaJogo}</strong> excluída!`;
+    toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.SUCCESS}`);
+    toast.show();
 });
 
 function esperarEstabelecerConexao(tempo) {
@@ -221,6 +255,9 @@ socket.on('erro', ({ mensagem }) => {
 });
 
 socket.on('aguardando', () => {
+    toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} Aguardando uma conexão...`;
+    toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.WARNING}`);
+    toast.show();
     btnJogar.style.display = 'none';
     btnCancelar.style.display = '';
     divAguardando.style.display = '';
@@ -236,6 +273,10 @@ socket.on('jogadores-pareados', ({ jogadores }) => {
     btnJogar.className = btnJogar.className.replace('success', 'warning');
     btnJogar.innerHTML = `Conectado com ${outroJogador}...`;
     btnJogar.disabled = true;
+    
+    toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} Conectado com <strong>${outroJogador}</strong>...`;
+    toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.WARNING}`);
+    toast.show();
 
     // mensagem de preparação para partida
     divAguardando.style.display = '';
@@ -311,7 +352,7 @@ function contraMenu() {
     btnJogar.innerHTML = 'Jogar';
     btnJogar.disabled = true;
 }
-contraMenu();
+// contraMenu();
 
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome, status }) => {

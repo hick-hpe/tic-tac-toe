@@ -83,6 +83,12 @@ function setupSocket(io) {
             }
         });
 
+        // ================================== deletar sala ao apertar em cancelar ==================================
+        socket.on('deletar-sala', (sala) => {
+            delete salas[sala];
+            socket.emit('deletar-sala');
+        });
+
         // ========================================== jogadas ==========================================
         socket.on('jogada', ({ sala, jogador, casaId }) => {
             console.log(`Jogada recebida de ${jogador} na sala "${sala}" na casa ${casaId}`);
@@ -178,14 +184,8 @@ function setupSocket(io) {
         socket.on('enviar-msg', ({ sala, remetente, msg }) => {
             if (!remetente || !msg) return;
 
-            if (inputMensagem.value.length > 72) {
-                console.log("Mensagem muito longa (mais de 72 caracteres)");
-                return;
-            }
-
-            const linhas = inputMensagem.value.split("\n");
-            if (linhas.length > 3) {
-                console.log("Mensagem muito longa (mais de 3 linhas)");
+            if (msg.length > 69) {
+                console.log("Mensagem muito longa (mais de 69 caracteres)");
                 return;
             }
 

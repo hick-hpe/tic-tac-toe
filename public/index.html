@@ -106,7 +106,7 @@
     <!-- Toast -->
     <div
       id="toast"
-      class="toast align-items-center border-0 position-absolute bottom-0 end-0 me-3 mb-3 text-bg-cor">
+      class="toast z-3 align-items-center border-0 position-absolute bottom-0 end-0 me-3 mb-3 text-bg-cor">
       <div class="d-flex">
         <div class="toast-body" id="toastMessage"></div>
         <button type="button" class="btn-close me-2 m-auto"
@@ -114,8 +114,12 @@
       </div>
     </div>
 
-    <!-- chat pc-->
-    <div id="chat" class="chat bg-light">
+    <!-- chat mobile -->
+    <!-- <button id="abrirChatMobile" class="abrirChatMobile btn btn-light">
+      <i class="bi bi-chat fs-1"></i>
+     </button> -->
+
+     <div id="chat" class="chat bg-light">
       <div class="chat-header">
         <div class="d-flex align-items-center gap-2">
           <i class="bi bi-chat"></i> Chat <div id="notificacao" class="notificacao"></div>
@@ -127,18 +131,12 @@
         <div class="text-muted text-center p-3">Nenhuma mensagem enviada...</div>
       </div>
 
-      <form id="formChat" class="d-flex align-items-center position-absolute bottom-0 gap-2 p-1 w-100 border-0 border-top border-dark">
-        <input type="text" id="inputMensagem" class="form-control" placeholder="Digite algo...">
-        <button type="submit" id="btnEnviarMensagem" class="btn btn-primary">Enviar</button>
+      <form id="formChat" class="d-flex align-items-center gap-2 p-1 w-100 border-0 border-top border-dark">
+        <textarea type="text" id="inputMensagem" class="form-control" maxlength="69" placeholder="Digite algo..." rows="1" style="resize: none;"></textarea>
+        <small id="numCharInputMensagem"></small>
+        <button type="submit" id="btnEnviarMensagem" class="btn btn-primary rounded-circle"><i class="bi bi-send"></i></button>
       </form>
-    </div>
-
-    <!-- chat mobile -->
-     <div class="btn btn-light">
-      <i class="bi bi-chat"></i>
      </div>
-
-     
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"
