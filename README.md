@@ -16,6 +16,7 @@ Todas as funcionalidades foram desenvolvidas em branches separadas ao longo do p
 - Comunicação em tempo real via WebSocket
 - Reinício de partida após o fim do jogo
 - Interface simples e responsiva
+- Chat para interagir durante a partida
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -47,6 +48,12 @@ Todas as funcionalidades foram desenvolvidas em branches separadas ao longo do p
    O jogador que começará a partida será aleatório!
 
    Após o término da partida, um jogador poderá solicitar ao outro jogador para continuar jogando, clicando no botão `Jogar Novamente`.
+
+### 🖥️ Chat
+
+   <video src="assets/video/chat.mp4" controls width="500"></video>
+   Agora é possíel conversar durante as partidas!
+
 
 ## 🔧 Instalação
 
