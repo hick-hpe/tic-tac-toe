@@ -37,7 +37,7 @@ const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
 const placar = document.getElementById('placar');
 const notificacao = document.getElementById('notificacao');
-const abrirChatMobile = document.getElementById('abrirChatMobile');
+// const abrirChatMobile = document.getElementById('abrirChatMobile');
 
 // chat
 const botaoToogleChat = document.getElementById('botaoToogleChat');
@@ -48,9 +48,9 @@ const divMensagens = document.getElementById('mensagens');
 const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 
 // ============================== chat ==============================
-abrirChatMobile.addEventListener('click', () => {
-    chat.classList.toggle('activeMobile');
-});
+// abrirChatMobile.addEventListener('click', () => {
+//     chat.classList.toggle('activeMobile');
+// });
 
 function popUpChatEstaAberto() {
     return botaoToogleChat.className.includes('up');
@@ -65,10 +65,10 @@ botaoToogleChat.addEventListener('click', () => {
     }
 
     botaoToogleChat.className = toUp ?
-    botaoToogleChat.className.replace('up', 'down') :
-    botaoToogleChat.className.replace('down', 'up');
+        botaoToogleChat.className.replace('up', 'down') :
+        botaoToogleChat.className.replace('down', 'up');
     chat.classList.toggle('active');
-    
+
     inputMensagem.disabled = !toUp;
     btnEnviarMensagem.disabled = !toUp;
 
@@ -79,9 +79,20 @@ formChat.addEventListener('submit', (e) => {
     e.preventDefault();
 
     if (!inputMensagem.value) {
-        console.log(`Mensagem n send: "${inputMensagem.value}"`)
+        console.log(`Mensagem não enviada: "${inputMensagem.value}"`)
         return;
     };
+
+    if (inputMensagem.value.length > 72) {
+        console.log("Mensagem muito longa (mais de 72 caracteres)");
+        return;
+    }
+
+    const linhas = inputMensagem.value.split("\n");
+    if (linhas.length > 3) {
+        console.log("Mensagem muito longa (mais de 3 linhas)");
+        return;
+    }
 
     console.log('enviando...')
     const obj = {
@@ -140,7 +151,7 @@ function inicializarInterface() {
     divAguardando.style.display = 'none';
     btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
-    chat.style.display = 'none';
+    chat.style.display = ''; // deixar 'none'
     notificacao.style.display = 'none';
 }
 inicializarInterface();

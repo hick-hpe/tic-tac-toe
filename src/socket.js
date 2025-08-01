@@ -178,6 +178,17 @@ function setupSocket(io) {
         socket.on('enviar-msg', ({ sala, remetente, msg }) => {
             if (!remetente || !msg) return;
 
+            if (inputMensagem.value.length > 72) {
+                console.log("Mensagem muito longa (mais de 72 caracteres)");
+                return;
+            }
+
+            const linhas = inputMensagem.value.split("\n");
+            if (linhas.length > 3) {
+                console.log("Mensagem muito longa (mais de 3 linhas)");
+                return;
+            }
+
             salas[sala].jogo.mensagens.push({ remetente, msg });
 
             // manter as últimas 20 mensagens
