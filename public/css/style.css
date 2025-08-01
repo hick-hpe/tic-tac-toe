@@ -4,11 +4,12 @@ body {
     height: 100vh;
     background-color: #ececec;
     font-family: monospace;
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 .container {
-    width: clamp(300px, 450px, 500px);
+    width: 350px;
+    max-width: 500px;
 }
 
 .tabuleiro {
@@ -77,4 +78,29 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+
+.chatMobile.activeMobile {
+    
+}
+
+.chatMobile {
+    position: absolute;
+    border: 1px solid #000;
+    border-radius: 10px;
+    width: 300px;
+}
+
+.chatMobile .mensagens {
+    height: 150px !important;
+}
+
+.abrirChatMobile {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    border-radius: 50%;
+    box-shadow: 0 0 3px #000;
+}
+
 

@@ -37,6 +37,7 @@ const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
 const placar = document.getElementById('placar');
 const notificacao = document.getElementById('notificacao');
+const abrirChatMobile = document.getElementById('abrirChatMobile');
 
 // chat
 const botaoToogleChat = document.getElementById('botaoToogleChat');
@@ -47,6 +48,10 @@ const divMensagens = document.getElementById('mensagens');
 const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 
 // ============================== chat ==============================
+abrirChatMobile.addEventListener('click', () => {
+    chat.classList.toggle('activeMobile');
+});
+
 function popUpChatEstaAberto() {
     return botaoToogleChat.className.includes('up');
 }
@@ -295,7 +300,7 @@ function contraMenu() {
     btnJogar.innerHTML = 'Jogar';
     btnJogar.disabled = true;
 }
-// contraMenu()
+contraMenu();
 
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome, status }) => {
