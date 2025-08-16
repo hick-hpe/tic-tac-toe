@@ -27,6 +27,8 @@ const tabuleiro = document.querySelector('#tabuleiro');
 const vezJogador = document.querySelector('#vez-jogador');
 const jogador1 = document.querySelector('#jogador1');
 const jogador2 = document.querySelector('#jogador2');
+const divSimbolo1 = document.querySelector('#simbolo1');
+const divSimbolo2 = document.querySelector('#simbolo2');
 const divAguardando = document.querySelector('#aguardando');
 const btnJogar = document.querySelector('#btnJogar');
 const btnJogarNovamente = document.querySelector('#btnJogarNovamente');
@@ -439,6 +441,24 @@ socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
     vezJogador.textContent = jogadorComeca;
     const j1 = jogador1.textContent;
     const j2 = jogador2.textContent;
+
+    // ajustar os símbolos
+    const simbolo1 = divSimbolo1.textContent;
+    const simbolo2 = divSimbolo2.textContent;
+    const temp = simbolo1;
+    divSimbolo1.textContent = simbolo2;
+    divSimbolo2.textContent = temp;
+
+    // ajustar as classes dos simbolos
+    const classeDark = 'text-dark';
+    const classeDanger = 'text-danger';
+    if (divSimbolo1.className.includes(classeDark)) {
+        divSimbolo1.className = divSimbolo1.className.replace(classeDark, classeDanger);
+        divSimbolo2.className = divSimbolo1.className.replace(classeDanger, classeDark);
+    } else if (divSimbolo1.className.includes(classeDanger)) {
+        divSimbolo1.className = divSimbolo1.className.replace(classeDanger, classeDark);
+        divSimbolo2.className = divSimbolo1.className.replace(classeDark, classeDanger);
+    }
 
     // limpar tabuleiro
     casas.forEach(casa => {

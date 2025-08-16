@@ -166,8 +166,15 @@ function setupSocket(io) {
                 // Reinicia o jogo
                 const jogador1 = salas[sala].jogadores[0].nome;
                 const jogador2 = salas[sala].jogadores[1].nome;
-                salas[sala].jogo.vez = jogador1;
 
+                // altera os simbolos
+                const temp = salas[sala].jogo.simbolos[jogador1];
+                const simbolo1 = salas[sala].jogo.simbolos[jogador1];
+                const simbolo2 = salas[sala].jogo.simbolos[jogador2];
+                salas[sala].jogo.simbolos[jogador1] = simbolo2;
+                salas[sala].jogo.simbolos[jogador2] = temp;
+                
+                // enviar mensagem
                 io.to(sala).emit('ambos-reiniciam', {
                     jogadorComeca: salas[sala].jogo.vez,
                 });
