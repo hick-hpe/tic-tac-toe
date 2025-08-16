@@ -1,5 +1,6 @@
 const salas = {};
 const timeoutRemoverSala = {};
+const contarTempoJogo = {};
 const TicTacToe = require('./TicTacToe');
 const TEMPO_ESPERA_INICIAR_PARTIDA = 5000;
 const TEMPO_ESPERA_AGUARDAR_CONEXAO = 20000;
@@ -10,6 +11,13 @@ const STATUS = {
     JOGO_FINALIZADO: 3,
 }
 let statusAtual = STATUS.INICIADO;
+
+function formatarTempoEmMinutoSegundo(tempo) {
+    let seg = Math.floor(tempo / 1000);
+    let min = Math.floor(seg / 60);
+    seg = seg % 60;
+    return `${min}:${String(seg).padStart(2, "0")}`;
+}
 
 function setupSocket(io) {
     io.on('connection', (socket) => {
@@ -69,6 +77,12 @@ function setupSocket(io) {
                         jogadores: salas[sala].jogadores.map(j => j.nome),
                         jogadorComeca: salas[sala].jogo.vez,
                     });
+
+                    // contar tempo de partida
+                    console.log('---- PARTIDA INICIADA ----');
+                    console.log(`${jogador1} x ${jogador2}`);
+                    contarTempoJogo[sala] = new Date();
+
                 }, TEMPO_ESPERA_INICIAR_PARTIDA);
             } else {
                 // se não tiver 2 jogadores, aguardar
@@ -131,14 +145,31 @@ function setupSocket(io) {
             if (resultado === null) {
                 console.log(`🔄 Jogo em andamento na sala ${sala}`);
             } else if (resultado === -1) {
+                // calcular tempo de jogo
+                contarTempoJogo[sala] = new Date() - contarTempoJogo[sala];
+                
+                console.log('---- PARTIDA FINALIZADA ----');
+                const j1 = jogo.jogadores[0];
+                const j2 = jogo.jogadores[1];
+                console.log(`${j1} x ${j2}`);
+                console.log(`Tempo de partida: ${formatarTempoEmMinutoSegundo(contarTempoJogo[sala])}`);
+
                 this.jogando = false;
                 io.to(sala).emit('fim-de-jogo', null);
                 console.log(`🤝 Empate na sala ${sala}`);
             } else {
+                // calcular tempo de jogo
+                contarTempoJogo[sala] = new Date() - contarTempoJogo[sala];
+
                 const vencedor = jogo.getJogadorPorSimbolo(resultado.simbolo);
                 jogo.placar[vencedor]++;
                 const j1 = jogo.jogadores[0];
                 const j2 = jogo.jogadores[1];
+                
+                console.log('---- PARTIDA FINALIZADA ----');
+                console.log(`${j1} x ${j1}`);
+                console.log(`Tempo de partida: ${formatarTempoEmMinutoSegundo(contarTempoJogo[sala])}`);
+
                 io.to(sala).emit('fim-de-jogo', {
                     vencedor,
                     pontos: [jogo.placar[j1], jogo.placar[j2]]
@@ -178,6 +209,9 @@ function setupSocket(io) {
                 io.to(sala).emit('ambos-reiniciam', {
                     jogadorComeca: salas[sala].jogo.vez,
                 });
+
+                // iniciar contagem
+                contarTempoJogo[sala] = new Date();
                 console.log(`Partida reiniciada na sala "${sala}" com jogadores:`, salas[sala].jogadores.map(j => j.nome));
             }
             else {

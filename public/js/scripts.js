@@ -17,6 +17,8 @@ const STATUS_MESSAGE = {
     SUCCESS: 'success',
 }
 let numMensagensNaoLidas = 0;
+let contarTempoJogo = 0;
+let timeOutContarTempoJogo;
 
 // ============================== Elementos DOM ==============================
 const formNomeSala = document.getElementById('formNomeSala');
@@ -39,7 +41,7 @@ const toast = new bootstrap.Toast(toastEl);
 const toastMessage = document.getElementById('toastMessage');
 const placar = document.getElementById('placar');
 const notificacao = document.getElementById('notificacao');
-// const abrirChatMobile = document.getElementById('abrirChatMobile');
+const divContarTempoJogo = document.getElementById('contarTempoJogo');
 
 // chat
 const botaoToogleChat = document.getElementById('botaoToogleChat');
@@ -126,8 +128,6 @@ formChat.addEventListener('submit', (e) => {
     }
 
     inputMensagem.value = '';
-
-    console.log(obj);
 
     socket.emit('enviar-msg', obj);
 });
@@ -265,6 +265,8 @@ socket.on('aguardando', () => {
 
 socket.on('jogadores-pareados', ({ jogadores }) => {
     clearInterval(interval);
+    inputNome.disabled = true;
+    inputSala.disabled = true;
     divAguardando.style.display = 'none';
     const outroJogador = jogadores.find(j => j !== jogadorLocal);
     btnCancelar.style.display = 'none';
@@ -285,6 +287,12 @@ socket.on('jogadores-pareados', ({ jogadores }) => {
 
 // =================================================== PREPARAR DADOS PARA INICIAR A PARTIDA ===================================================
 socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
+    // iniciar contagem
+    timeOutContarTempoJogo = setInterval(() => {
+        contarTempoJogo++;
+        divContarTempoJogo.textContent = formatarTempoEmMinutoSegundo(contarTempoJogo);
+    }, 1000);
+
     // Esconder formulário e aguardando
     formNomeSala.style.display = 'none';
     divAguardando.style.display = 'none';
@@ -338,19 +346,19 @@ function exibirMenu() {
     salaJogo = '';
 }
 
-function contraMenu() {
-    // Limpar estado do jogo
-    formNomeSala.style.display = 'none';
-    info.style.display = '';
-    tabuleiro.style.display = '';
-    divAguardando.style.display = '';
-    btnJogarNovamente.style.display = '';
-    btnCancelar.style.display = '';
-    btnJogar.style.display = 'none';
-    btnJogar.className = btnJogar.className.replace('warning', 'success');
-    btnJogar.innerHTML = 'Jogar';
-    btnJogar.disabled = true;
-}
+// function contraMenu() {
+//     // Limpar estado do jogo
+//     formNomeSala.style.display = 'none';
+//     info.style.display = '';
+//     tabuleiro.style.display = '';
+//     divAguardando.style.display = '';
+//     btnJogarNovamente.style.display = '';
+//     btnCancelar.style.display = '';
+//     btnJogar.style.display = 'none';
+//     btnJogar.className = btnJogar.className.replace('warning', 'success');
+//     btnJogar.innerHTML = 'Jogar';
+//     btnJogar.disabled = true;
+// }
 // contraMenu();
 
 // ====================================================== jogador desconectado ======================================================
@@ -403,8 +411,14 @@ function exibirResultado(vencedor = null, meuNome = '') {
     modal.show();
 }
 
-socket.on('fim-de-jogo', (obj) => {
+function formatarTempoEmMinutoSegundo(tempo) {
+    let min = Math.floor(tempo / 60);
+    let seg = tempo % 60;
+    return `${min}:${String(seg).padStart(2, "0")}`;
+}
 
+socket.on('fim-de-jogo', (obj) => {
+    clearInterval(timeOutContarTempoJogo);
     console.log('objeto recebido: ', obj);
 
     if (obj === null) {
@@ -431,6 +445,14 @@ btnJogarNovamente.addEventListener('click', () => {
 });
 
 socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
+    // iniciar contagem
+    contarTempoJogo = 0;
+    divContarTempoJogo.textContent = formatarTempoEmMinutoSegundo(contarTempoJogo);
+    timeOutContarTempoJogo = setInterval(() => {
+        contarTempoJogo++;
+        divContarTempoJogo.textContent = formatarTempoEmMinutoSegundo(contarTempoJogo);
+    }, 1000);
+
     toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.INFO]} Partida reiniciada!`;
     toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.INFO}`);
     toast.show();
