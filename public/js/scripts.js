@@ -51,9 +51,6 @@ const divMensagens = document.getElementById('mensagens');
 const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 
 // ============================== chat ==============================
-// abrirChatMobile.addEventListener('click', () => {
-//     chat.classList.toggle('activeMobile');
-// });
 
 function popUpChatEstaAberto() {
     return botaoToogleChat.className.includes('up');
@@ -180,7 +177,7 @@ function inicializarInterface() {
     divAguardando.style.display = 'none';
     btnJogarNovamente.style.display = 'none';
     btnCancelar.style.display = 'none';
-    chat.style.display = 'none'; // deixar 'none'
+    chat.style.display = 'none';
     notificacao.style.display = 'none';
 }
 inicializarInterface();
@@ -358,6 +355,7 @@ function contraMenu() {
 
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome, status }) => {
+    chat.style.display = 'none';
     console.log(`🔌 Jogador ${nome} desconectado`);
     const mensagem = `O(A) jogador(a) <strong>${nome}</strong> desconectou.`;
     toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} ${mensagem}`;
