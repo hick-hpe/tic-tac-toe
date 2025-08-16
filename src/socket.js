@@ -23,6 +23,10 @@ function setupSocket(io) {
     io.on('connection', (socket) => {
         console.log(`🟢 Socket ${socket.id} conectado`);
 
+        socket.on('get-status', () => {
+            socket.emit('get-status', statusAtual);
+        });
+
         // ========================================================== criar sala ==========================================================
         socket.on('criar-sala', ({ nome, sala }) => {
             console.log(`Sala criada por ${nome} na sala "${sala}"`);
@@ -105,6 +109,13 @@ function setupSocket(io) {
 
         // ========================================== jogadas ==========================================
         socket.on('jogada', ({ sala, jogador, casaId }) => {
+            console.log('--- jogada ---');
+            console.log(statusAtual);
+            console.log('--------------');
+
+            if (statusAtual == STATUS.JOGO_FINALIZADO) 
+                return;
+
             console.log(`Jogada recebida de ${jogador} na sala "${sala}" na casa ${casaId}`);
 
             // Verifica se a sala existe e se o jogo está iniciado
@@ -155,6 +166,7 @@ function setupSocket(io) {
                 console.log(`Tempo de partida: ${formatarTempoEmMinutoSegundo(contarTempoJogo[sala])}`);
 
                 this.jogando = false;
+                statusAtual = STATUS.JOGO_FINALIZADO;
                 io.to(sala).emit('fim-de-jogo', null);
                 console.log(`🤝 Empate na sala ${sala}`);
             } else {
@@ -170,6 +182,7 @@ function setupSocket(io) {
                 console.log(`${j1} x ${j1}`);
                 console.log(`Tempo de partida: ${formatarTempoEmMinutoSegundo(contarTempoJogo[sala])}`);
 
+                statusAtual = STATUS.JOGO_FINALIZADO;
                 io.to(sala).emit('fim-de-jogo', {
                     vencedor,
                     pontos: [jogo.placar[j1], jogo.placar[j2]]
@@ -180,6 +193,8 @@ function setupSocket(io) {
 
         // ==================================================== jogar novamente ====================================================
         socket.on('jogar-novamente', ({ jogador, sala }) => {
+            if (statusAtual == STATUS.JOGO_FINALIZADO) return;
+
             console.log(`Jogador ${jogador} solicitou jogar novamente na sala "${sala}"`);
 
             // Verifica se a sala existe e se o jogador está nela

@@ -314,9 +314,7 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
                     casaId: Number(casa.id[casa.id.length - 1])
                 });
             } else {
-                toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} Não é sua vez!`;
-                toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.DANGER}`);
-                toast.show();
+                socket.emit('get-status');
             }
         });
     });
@@ -325,6 +323,13 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
     chat.style.display = '';
 });
 
+socket.on('get-status', (status) => {
+    if (status != 3) {
+        toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} Não é sua vez!`;
+        toastEl.className = toastEl.className.replace(/text-bg-[a-z]+/, `text-bg-${STATUS_MESSAGE.DANGER}`);
+        toast.show();
+    }
+});
 
 function exibirMenu() {
     // Limpar estado do jogo
@@ -419,7 +424,6 @@ function formatarTempoEmMinutoSegundo(tempo) {
 
 socket.on('fim-de-jogo', (obj) => {
     clearInterval(timeOutContarTempoJogo);
-    console.log('objeto recebido: ', obj);
 
     if (obj === null) {
         exibirResultado(null);
@@ -459,8 +463,6 @@ socket.on('ambos-reiniciam', ({ jogadorComeca }) => {
 
     // vez de jogar
     vezJogador.textContent = jogadorComeca;
-    const j1 = jogador1.textContent;
-    const j2 = jogador2.textContent;
 
     // ajustar os símbolos
     const simbolo1 = divSimbolo1.textContent;
