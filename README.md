@@ -52,7 +52,7 @@ Todas as funcionalidades foram desenvolvidas em branches separadas ao longo do p
 ### 🖥️ Chat
 
    <video src="assets/video/chat.mp4" controls width="500"></video>
-   Agora é possíel conversar durante as partidas!
+   Agora é possível conversar durante as partidas!
 
 
 ## 🔧 Instalação
