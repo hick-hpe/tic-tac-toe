@@ -19,19 +19,23 @@
     </h1>
 
     <form id="formNomeSala" class="mt-4">
-      <div class="mb-2">
+      <div class="mb-0">
         <label for="nome" class="form-label">Nome</label>
         <br>
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="nome" placeholder="Ex: player1" aria-describedby="getRandomUsername" maxlength="8">
+          <input type="text" class="form-control" id="nome" placeholder="Ex: player1"
+            aria-describedby="getRandomUsername" maxlength="8" required>
           <span class="input-group-text" id="getRandomUsername" title="Username aleatório"
             style="cursor: pointer;">🎲Gerar <span class="ms-1 d-none d-sm-inline">username</span></span>
+            <small class="ms-1 w-100">
+              Número de caracteres: <span id="numCharUsername">0/8</span>
+            </small>
         </div>
       </div>
 
       <div class="mb-4">
         <label for="sala" class="form-label">Sala</label> <br>
-        <input type="text" class="form-control" id="sala" placeholder="Ex: 1234">
+        <input type="text" class="form-control" id="sala" placeholder="Ex: 1234" required>
       </div>
 
       <button type="submit" class="btn btn-success w-100" id="btnJogar"><i class="bi bi-play-fill"></i> Jogar</button>
@@ -96,11 +100,6 @@
       <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
   </div>
-
-  <!-- chat mobile -->
-  <!-- <button id="abrirChatMobile" class="abrirChatMobile btn btn-light">
-      <i class="bi bi-chat fs-1"></i>
-     </button> -->
 
   <div id="chat" class="chat bg-light">
     <div class="chat-header">

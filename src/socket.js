@@ -52,6 +52,10 @@ function setupSocket(io) {
         socket.on('criar-sala', ({ nome, sala }) => {
             console.log(`Sala criada por ${nome} na sala "${sala}"`);
 
+            if (nome.length > 8) {
+                return;
+            }
+
             // Verifica se a sala já existe, se não, cria uma nova
             if (!salas[sala]) {
                 salas[sala] = { jogadores: [] };

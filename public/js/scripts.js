@@ -43,6 +43,8 @@ const toastMessage = document.getElementById('toastMessage');
 const placar = document.getElementById('placar');
 const notificacao = document.getElementById('notificacao');
 const divContarTempoJogo = document.getElementById('contarTempoJogo');
+const numCharUsername = document.getElementById('numCharUsername');
+
 
 // chat
 const botaoToogleChat = document.getElementById('botaoToogleChat');
@@ -185,13 +187,15 @@ inicializarInterface();
 
 // ============================== username aleatório ==============================
 btnGetRandomUsername.addEventListener('click', () => {
-    console.log('click ->');
     socket.emit('get-random-username');
 });
 
 socket.on('send-random-username', (username) => {
-    console.log('on ->');
     inputNome.value = username;
+});
+
+inputNome.addEventListener('keydown', () => {
+    numCharUsername.textContent = `${inputNome.value.length}/${inputNome.maxLength}`;
 });
 
 // ============================== Submissão do formulário ==============================
