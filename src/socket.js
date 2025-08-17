@@ -19,12 +19,33 @@ function formatarTempoEmMinutoSegundo(tempo) {
     return `${min}:${String(seg).padStart(2, "0")}`;
 }
 
+const USERNAMES = [
+    "Alice123", "Bob_the_builder", "CharlieBlue", "DeltaForce", "EchoX", 
+    "Foxxie", "GigaDragon", "HawkEye", "IcyWolf", "JadePhoenix", 
+    "KingCobra", "LunarKnight", "MysticRaven", "NinjaShadow", "OrionStar",
+    "PixelPirate", "QuantumCat", "RogueViper", "SilentStorm", "ThunderStrike", 
+    "UltraNova", "VortexKing", "WolfieX", "XenoKnight", "YetiHunter", "ZodiacQueen",
+    "AquaWave", "BlazeFury", "CyberSonic", "DragonFlame", "ElementalStorm",
+    "FrostByte", "GlitchMaster", "HyperNova", "IcePhoenix", "JungleVibe",
+    "KillerBee", "LightSpeed", "MysticFlame", "NightWitch", "OpalSky",
+    "PixelWizard", "QuantumShift", "RavenMist", "StarChaser", "TurboTornado",
+    "ViperHunter", "WraithKing", "XenoAce", "YellowFlash", "ZeroGravity"
+];
+
+
 function setupSocket(io) {
     io.on('connection', (socket) => {
         console.log(`🟢 Socket ${socket.id} conectado`);
 
         socket.on('get-status', () => {
             socket.emit('get-status', statusAtual);
+        });
+
+        // ============================================ escolher nome aleatório ============================================
+        socket.on('get-random-username', () => {
+            const index = Math.floor(Math.random() * USERNAMES.length);
+            const nome = USERNAMES[index];
+            socket.emit('send-random-username', nome);
         });
 
         // ========================================================== criar sala ==========================================================

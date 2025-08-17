@@ -23,6 +23,7 @@ let timeOutContarTempoJogo;
 // ============================== Elementos DOM ==============================
 const formNomeSala = document.getElementById('formNomeSala');
 const inputNome = document.getElementById('nome');
+const btnGetRandomUsername = document.getElementById('getRandomUsername');
 const inputSala = document.getElementById('sala');
 const info = document.querySelector('#info');
 const tabuleiro = document.querySelector('#tabuleiro');
@@ -181,6 +182,17 @@ function inicializarInterface() {
     notificacao.style.display = 'none';
 }
 inicializarInterface();
+
+// ============================== username aleatório ==============================
+btnGetRandomUsername.addEventListener('click', () => {
+    console.log('click ->');
+    socket.emit('get-random-username');
+});
+
+socket.on('send-random-username', (username) => {
+    console.log('on ->');
+    inputNome.value = username;
+});
 
 // ============================== Submissão do formulário ==============================
 formNomeSala.addEventListener('submit', (e) => {
