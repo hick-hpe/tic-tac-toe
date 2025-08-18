@@ -7,6 +7,22 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+const os = require("os");
+
+// função para pegar o IP da máquina
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (let iface of Object.values(interfaces)) {
+    for (let info of iface) {
+      if (info.family === "IPv4" && !info.internal) {
+        return info.address; // retorna o primeiro IP válido
+      }
+    }
+  }
+  return "localhost";
+}
+
+const MEU_IP = getLocalIP();
 
 // Middlewares
 app.use(cookieParser());
@@ -26,5 +42,5 @@ setupSocket(io);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://${MEU_IP}:${PORT}`);
 });
