@@ -45,7 +45,6 @@ const notificacao = document.getElementById('notificacao');
 const divContarTempoJogo = document.getElementById('contarTempoJogo');
 const numCharUsername = document.getElementById('numCharUsername');
 
-
 // chat
 const botaoToogleChat = document.getElementById('botaoToogleChat');
 const chat = document.getElementById('chat');
@@ -56,11 +55,9 @@ const divMensagens = document.getElementById('mensagens');
 const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
 
 // ============================== chat ==============================
-
 function popUpChatEstaAberto() {
     return botaoToogleChat.className.includes('up');
 }
-
 
 numCharInputMensagem.textContent = `0/${inputMensagem.maxLength}`;
 inputMensagem.addEventListener('keydown', (e) => {
@@ -194,7 +191,7 @@ socket.on('send-random-username', (username) => {
     inputNome.value = username;
 });
 
-inputNome.addEventListener('keydown', () => {
+inputNome.addEventListener('input', () => {
     numCharUsername.textContent = `${inputNome.value.length}/${inputNome.maxLength}`;
 });
 
@@ -367,20 +364,21 @@ function exibirMenu() {
     salaJogo = '';
 }
 
-// function contraMenu() {
-//     // Limpar estado do jogo
-//     formNomeSala.style.display = 'none';
-//     info.style.display = '';
-//     tabuleiro.style.display = '';
-//     divAguardando.style.display = '';
-//     btnJogarNovamente.style.display = '';
-//     btnCancelar.style.display = '';
-//     btnJogar.style.display = 'none';
-//     btnJogar.className = btnJogar.className.replace('warning', 'success');
-//     btnJogar.innerHTML = 'Jogar';
-//     btnJogar.disabled = true;
-// }
-// contraMenu();
+function contraMenu() {
+    // Limpar estado do jogo
+    formNomeSala.style.display = 'none';
+    info.style.display = '';
+    tabuleiro.style.display = '';
+    divAguardando.style.display = '';
+    btnJogarNovamente.style.display = '';
+    btnCancelar.style.display = '';
+    btnJogar.style.display = 'none';
+    btnJogar.className = btnJogar.className.replace('warning', 'success');
+    btnJogar.innerHTML = 'Jogar';
+    btnJogar.disabled = true;
+    chat.style.display = '';
+}
+contraMenu();
 
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome, status }) => {
@@ -445,7 +443,7 @@ socket.on('fim-de-jogo', (obj) => {
         exibirResultado(null);
     } else {
         const { vencedor, pontos } = obj;
-        placar.textContent = `${pontos[0]} | ${pontos[1]}`;
+        placar.innerHTML = `${pontos[0]} <br> ${pontos[1]}`;
         exibirResultado(vencedor, jogadorLocal);
     }
     // Exibir botão de reiniciar

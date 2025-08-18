@@ -15,7 +15,7 @@
 
   <div class="container shadow p-3 rounded-2">
     <h1 class="text-center d-flex align-items-center justify-content-center gap-2">
-      <img src="/img/logo.png" height="50"> Tic Tac Toe
+      <img src="./img/logo.png" height="50"> Tic Tac Toe
     </h1>
 
     <form id="formNomeSala" class="mt-4">
@@ -24,12 +24,12 @@
         <br>
         <div class="input-group mb-3">
           <input type="text" class="form-control" id="nome" placeholder="Ex: player1"
-            aria-describedby="getRandomUsername" maxlength="8" required>
+            aria-describedby="getRandomUsername" maxlength="15" required>
           <span class="input-group-text" id="getRandomUsername" title="Username aleatório"
             style="cursor: pointer;">🎲Gerar <span class="ms-1 d-none d-sm-inline">username</span></span>
-            <small class="ms-1 w-100">
-              Número de caracteres: <span id="numCharUsername">0/8</span>
-            </small>
+          <small class="ms-1 w-100">
+            Número de caracteres: <span id="numCharUsername">0/8</span>
+          </small>
         </div>
       </div>
 
@@ -48,18 +48,23 @@
 
     <div class="text-center mt-4" id="info">
       <div class="fs-5">⏲️Tempo: <span id="contarTempoJogo">0:00</span></div>
+      <!-- adaptação do chat -->
       <div class="d-flex justify-content-between align-items-center mx-3 fs-5">
-        <div class="d-flex align-items-center gap-1">
-          <span id="simbolo1" class="fs-1 text-dark">X</span> <span id="jogador1">jogador1</span>
+        <div>
+          <div class="d-flex align-items-center gap-1">
+            <span id="simbolo1" class="fs-1 text-dark">X</span> <span id="jogador1">Bob_the_builder</span>
+          </div>
+          <div class="d-flex align-items-center gap-1">
+            <span id="simbolo2" class="fs-1 text-danger">O</span>
+            <span id="jogador2">Bob_the_builder</span>
+          </div>
         </div>
         <div id="placar">
-          0 | 0
-        </div>
-        <div class="d-flex align-items-center gap-1">
-          <span id="jogador2">jogador2</span> <span id="simbolo2" class="fs-1 text-danger">O</span>
+          0 <br> 0
         </div>
       </div>
-      <div class="fs-5">Vez de <span id="vez-jogador">jogador1</span></div>
+
+      <div class="fs-5">Vez de <span id="vez-jogador">Bob_the_builder</span></div>
     </div>
 
     <div class="tabuleiro" id="tabuleiro">

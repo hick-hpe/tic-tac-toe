@@ -11,6 +11,7 @@ const STATUS = {
     JOGO_FINALIZADO: 3,
 }
 let statusAtual = STATUS.INICIADO;
+const LIMITE_MAX_CHARS_USERNAME = 15
 
 function formatarTempoEmMinutoSegundo(tempo) {
     let seg = Math.floor(tempo / 1000);
@@ -52,7 +53,7 @@ function setupSocket(io) {
         socket.on('criar-sala', ({ nome, sala }) => {
             console.log(`Sala criada por ${nome} na sala "${sala}"`);
 
-            if (nome.length > 8) {
+            if (nome.length > LIMITE_MAX_CHARS_USERNAME) {
                 return;
             }
 
@@ -218,8 +219,6 @@ function setupSocket(io) {
 
         // ==================================================== jogar novamente ====================================================
         socket.on('jogar-novamente', ({ jogador, sala }) => {
-            if (statusAtual == STATUS.JOGO_FINALIZADO) return;
-
             console.log(`Jogador ${jogador} solicitou jogar novamente na sala "${sala}"`);
 
             // Verifica se a sala existe e se o jogador está nela
