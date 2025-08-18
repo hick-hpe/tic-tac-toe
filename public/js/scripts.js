@@ -53,8 +53,18 @@ const inputMensagem = document.getElementById('inputMensagem');
 const numCharInputMensagem = document.getElementById('numCharInputMensagem');
 const divMensagens = document.getElementById('mensagens');
 const btnEnviarMensagem = document.querySelector('#btnEnviarMensagem');
+const btnAtivarChat = document.querySelector('#btnAtivarChat');
+const containerBtnAtivarChat = document.querySelector('#containerBtnAtivarChat');
 
 // ============================== chat ==============================
+containerBtnAtivarChat.style.display = 'none';
+
+btnAtivarChat.addEventListener('click', () => {
+    console.log('click')
+    btnAtivarChat.classList.add('esconder');
+    chat.classList.toggle('active');
+});
+
 function popUpChatEstaAberto() {
     return botaoToogleChat.className.includes('up');
 }
@@ -83,22 +93,20 @@ inputMensagem.addEventListener('keydown', (e) => {
 });
 
 botaoToogleChat.addEventListener('click', () => {
-    const toUp = botaoToogleChat.className.includes('up');
+    const aberto = popUpChatEstaAberto();
 
-    if (toUp) {
-        notificacao.style.display = 'none';
-        numMensagensNaoLidas = 0;
+    if (aberto) {
+        botaoToogleChat.className.replace('up', 'down');
+    } else {
+        botaoToogleChat.className.replace('down', 'up');
     }
 
-    botaoToogleChat.className = toUp ?
-        botaoToogleChat.className.replace('up', 'down') :
-        botaoToogleChat.className.replace('down', 'up');
     chat.classList.toggle('active');
 
-    inputMensagem.disabled = !toUp;
-    btnEnviarMensagem.disabled = !toUp;
+    inputMensagem.disabled = aberto;
+    btnEnviarMensagem.disabled = aberto;
 
-    console.log(`Aberto? ${toUp}`);
+    btnAtivarChat.classList.remove('esconder');
 });
 
 formChat.addEventListener('submit', (e) => {
@@ -120,7 +128,6 @@ formChat.addEventListener('submit', (e) => {
         return;
     }
 
-    console.log('enviando...')
     const obj = {
         sala: inputSala.value,
         remetente: inputNome.value,
@@ -133,15 +140,16 @@ formChat.addEventListener('submit', (e) => {
 });
 
 function atualizaNumMensagensNaoLidas(num) {
-    notificacao.textContent = num;
+    notificacao.textContent = num < 10 ? num : '+9';
 }
 
 socket.on('try-notfy', () => {
     const aberto = popUpChatEstaAberto();
     console.log(`Exibir not? ${aberto}`);
+    console.log('numMensagensNaoLidas: ' + numMensagensNaoLidas);
 
-    if (aberto) {
-        notificacao.style.display = '';
+    if (!aberto) {
+        notificacao.style.display = 'inline';
         numMensagensNaoLidas++;
     } else {
         notificacao.style.display = 'none';
@@ -189,6 +197,7 @@ btnGetRandomUsername.addEventListener('click', () => {
 
 socket.on('send-random-username', (username) => {
     inputNome.value = username;
+    numCharUsername.textContent = `${inputNome.value.length}/${inputNome.maxLength}`;
 });
 
 inputNome.addEventListener('input', () => {
@@ -334,6 +343,7 @@ socket.on('iniciar', ({ jogadores, jogadorComeca }) => {
 
     // chat disponível
     chat.style.display = '';
+    containerBtnAtivarChat.style.display = '';
 });
 
 socket.on('get-status', (status) => {
@@ -364,25 +374,27 @@ function exibirMenu() {
     salaJogo = '';
 }
 
-function contraMenu() {
-    // Limpar estado do jogo
-    formNomeSala.style.display = 'none';
-    info.style.display = '';
-    tabuleiro.style.display = '';
-    divAguardando.style.display = '';
-    btnJogarNovamente.style.display = '';
-    btnCancelar.style.display = '';
-    btnJogar.style.display = 'none';
-    btnJogar.className = btnJogar.className.replace('warning', 'success');
-    btnJogar.innerHTML = 'Jogar';
-    btnJogar.disabled = true;
-    chat.style.display = '';
-}
-contraMenu();
+// function contraMenu() {
+//     // Limpar estado do jogo
+//     formNomeSala.style.display = 'none';
+//     info.style.display = '';
+//     tabuleiro.style.display = '';
+//     divAguardando.style.display = '';
+//     btnJogarNovamente.style.display = '';
+//     btnCancelar.style.display = '';
+//     btnJogar.style.display = 'none';
+//     btnJogar.className = btnJogar.className.replace('warning', 'success');
+//     btnJogar.innerHTML = 'Jogar';
+//     btnJogar.disabled = true;
+//     chat.style.display = '';
+// }
+// contraMenu();
 
 // ====================================================== jogador desconectado ======================================================
 socket.on('jogador-desconectado', ({ nome, status }) => {
     chat.style.display = 'none';
+    containerBtnAtivarChat.style.display = 'none';
+
     console.log(`🔌 Jogador ${nome} desconectado`);
     const mensagem = `O(A) jogador(a) <strong>${nome}</strong> desconectou.`;
     toastMessage.innerHTML = `${statusToastIcon[STATUS_MESSAGE.WARNING]} ${mensagem}`;

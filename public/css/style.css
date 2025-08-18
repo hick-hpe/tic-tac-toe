@@ -38,8 +38,18 @@ body {
     transform: translateY(0px);
 }
 
+.btnAtivarChat {
+    display: flex;
+    cursor: pointer;
+}
+
+.btnAtivarChat.esconder {
+    display: none;
+    transition: 1s;
+}
+
 .chat {
-    transform: translateY(553px);
+    transform: translateY(100%);
     transition: .5s;
     position: absolute;
     right: 0;
@@ -70,14 +80,7 @@ body {
 }
 
 .notificacao {
-    aspect-ratio: 1 / 1;
-    height: 20px;
-    background-color: #000;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: none;
 }
 
 .chat textarea.perto-limite:focus {
@@ -96,23 +99,10 @@ body {
     box-shadow: 0 0 5px green;
 }
 
-/* mobile */
-/* .abrirChatMobile {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    border-radius: 50%;
-    box-shadow: 0 0 3px #000;
-} */
 
 @media screen and (max-width: 576px) {
     .chat {
-        transform: translateY(253px);
         width: 300px;
-    }
-
-    .chat.active {
-        transform: translateY(0px);
     }
 
     .chat .mensagens {
